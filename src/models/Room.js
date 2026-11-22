@@ -21,6 +21,11 @@ const roomSchema  = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    // محادثة خاصة بين شخصين
+    isDirect:{
+        type: Boolean,
+        default: false
+    },
     members: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'

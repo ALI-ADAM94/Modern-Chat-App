@@ -11,6 +11,7 @@ const Room = require('./models/Room');
 const cors = require('cors');
 const authRoutes = require('./routes/auth');
 const roomRoutes = require('./routes/rooms');
+const userRoutes = require('./routes/users');
 
 const app = express();
 const server = http.createServer(app)
@@ -35,6 +36,7 @@ app.use(express.static(path.join(__dirname, '..', 'frontend')));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/rooms', roomRoutes);
+app.use('/api/users', userRoutes);
 
 app.get('/', (req, res) => {
   res.send('Hello World!');
@@ -45,7 +47,17 @@ app.get('/health', (req, res) => {
 });
 app.set('io', io);
 
-const onlineUsers = new Set();// تخزين اونلاين
+const presence = require('./socket/presence');// تخزين اونلاين
+
+// Members of direct chats, cached so typing events don't hit the DB on every key press
+const directRoomMembers = new Map(); // roomId -> [userId, userId]
+async function getDirectMembers(roomId) {
+  if (directRoomMembers.has(roomId)) return directRoomMembers.get(roomId);
+  const room = await Room.findById(roomId).select('isDirect members').lean();
+  const members = room?.isDirect ? room.members.map(String) : null;
+  directRoomMembers.set(roomId, members);
+  return members;
+}
 
 // التحقق من التوكين قبل قبول الاتصال
 // The client sends the token in `auth: { token }` (or `?token=` in the query).
@@ -75,8 +87,18 @@ io.on('connection', (socket)=>{
   const user = socket.data.user;
   console.log('User connected: ' + user.username);
 
-  onlineUsers.add(socket.data.userId);
-  io.emit('user-online', { userId: socket.data.userId, username: user.username });
+  const userId = socket.data.userId;
+
+  // Personal room: lets us reach every tab/device of this user (used for direct messages)
+  socket.join('user:' + userId);
+
+  // Tell this client who is online right now
+  socket.emit('online-users', presence.onlineUserIds().concat(userId));
+
+  // Tell everyone else this user came online (only on their first tab)
+  if (presence.addConnection(userId)) {
+    socket.broadcast.emit('user-online', { userId, username: user.username });
+  }
 
   // الانضمام الى الغرف
   socket.on('join-room', async (data) =>{
@@ -92,7 +114,7 @@ io.on('connection', (socket)=>{
         socket.emit('error', 'Room not found');
         return;
       }
-      if(room.isPrivate){
+      if(room.isPrivate || room.isDirect){
         const isMember = room.members?.some(
           (m) => m.toString() === socket.data.userId
         );
@@ -139,38 +161,46 @@ io.on('connection', (socket)=>{
       .populate('user', 'username displayName')
       .lean();
 
-      io.to(roomId).emit('new-message', populated);
+      // In a direct chat, also deliver to both users' personal rooms so the
+      // other person gets it (and an unread badge) even if the chat isn't open
+      const members = await getDirectMembers(roomId);
+      let target = io.to(roomId);
+      if (members) target = target.to(members.map((m) => 'user:' + m));
+      target.emit('new-message', populated);
     } catch (error) {
       console.error('Error sending message:', error);
       socket.emit('error', 'Error occurred while sending message: ' + error.message);
     }
   })
 
-  // اشعار الكتابة
-  socket.on('typing-start', (data)=>{
+  // اشعار الكتابة / توقف الكتابة
+  async function relayTyping(event, data) {
     const roomId = data?.roomId;
-    if(!roomId) return;
-    socket.to(roomId).emit('user-typing',{
-      userId: socket.data.userId,
-      username: user.username,
-    })
-  })
+    if(!roomId || !socket.rooms.has(roomId)) return;
+    const payload = { roomId, userId, username: user.username };
 
+    // In direct chats send it to the other person's personal room, so they see
+    // "typing..." in their chat list even when the chat isn't open
+    const members = await getDirectMembers(roomId).catch(() => null);
+    const others = (members || []).filter((m) => m !== userId).map((m) => 'user:' + m);
+    socket.to(roomId).to(others).emit(event, payload);
+  }
 
-  // اشعار توقف الكتابة
-  socket.on('typing-stop', (data)=>{
-    const roomId = data?.roomId;
-    if(!roomId) return;
-    socket.to(roomId).emit('user-stop-typing',{
-      userId: socket.data.userId,
-      username: user.username,
-    })
-  })
+  socket.on('typing-start', (data) => relayTyping('user-typing', data));
+  socket.on('typing-stop', (data) => relayTyping('user-stop-typing', data));
 
-  socket.on('disconnect', () => {
-    onlineUsers.delete(socket.data.userId);
-    io.emit('user-offline', { userId: socket.data.userId });
+  socket.on('disconnect', async () => {
     console.log('user disconnected: ' + socket.id);
+    // Only offline once the user's last tab/device has disconnected
+    if (!presence.removeConnection(userId)) return;
+
+    const lastSeen = new Date();
+    io.emit('user-offline', { userId, lastSeen });
+    try {
+      await User.updateOne({ _id: userId }, { lastSeen });
+    } catch (error) {
+      console.error('Error saving lastSeen:', error);
+    }
   })
 })
 

@@ -255,6 +255,75 @@
             border-top: 1px solid var(--border);
         }
 
+        /* ---------- Tabs, search, contact list ---------- */
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tab {
+            flex: 1;
+            background: none;
+            color: var(--muted);
+            border-radius: 0;
+            border-bottom: 3px solid transparent;
+            padding: 12px;
+            font-weight: 600;
+        }
+
+        .tab:hover { background: #f8fafc; color: var(--text); }
+        .tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+        .tab-panel { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+
+        .search { padding: 10px 12px 4px; }
+        .search input { padding: 9px 12px; border-radius: 20px; background: #f1f5f9; border-color: transparent; }
+
+        .contact-list li {
+            flex-direction: row;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .contact-list .info-col { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+        .contact-list .info-col strong { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        .status-text.online { color: var(--success); }
+        .status-text.typing { color: var(--success); font-style: italic; }
+
+        .avatar { position: relative; }
+
+        .avatar .dot {
+            position: absolute;
+            right: -1px;
+            bottom: -1px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 2px solid white;
+            background: #94a3b8;
+            transition: background .3s;
+        }
+
+        .avatar .dot.online { background: #22c55e; }
+
+        .badge {
+            background: #22c55e;
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            min-width: 20px;
+            height: 20px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 6px;
+        }
+
+        .chat-header-info { display: flex; align-items: center; gap: 12px; min-width: 0; }
+        #roomDesc.online, #roomDesc.typing { color: var(--success); }
+
         @media (max-width: 700px) {
             .app { flex-direction: column; }
             .sidebar { width: 100%; max-height: 45%; border-right: none; border-bottom: 1px solid var(--border); }
@@ -318,28 +387,47 @@
                 <button class="ghost" id="logoutButton" title="Log out">Log out</button>
             </div>
 
-            <div class="sidebar-title">
-                Rooms
-                <button class="ghost" id="toggleNewRoom" title="Create room">+ New</button>
+            <div class="tabs">
+                <button type="button" class="tab active" data-tab="chats">Chats</button>
+                <button type="button" class="tab" data-tab="rooms">Rooms</button>
             </div>
 
-            <form class="new-room hidden" id="newRoomForm">
-                <input type="text" id="newRoomName" placeholder="Room name (min 3 chars)" minlength="3" required>
-                <input type="text" id="newRoomDesc" placeholder="Description (optional)">
-                <label class="row"><input type="checkbox" id="newRoomPrivate"> Private room</label>
-                <p class="error" id="newRoomError"></p>
-                <button type="submit">Create room</button>
-            </form>
+            <!-- Chats tab: everyone, with live Online / last seen -->
+            <div class="tab-panel" id="chatsPanel">
+                <div class="search">
+                    <input type="text" id="userSearch" placeholder="🔍 Search users" autocomplete="off">
+                </div>
+                <ul class="room-list contact-list" id="userList"></ul>
+            </div>
 
-            <ul class="room-list" id="roomList"></ul>
+            <!-- Rooms tab: group rooms -->
+            <div class="tab-panel hidden" id="roomsPanel">
+                <div class="sidebar-title">
+                    Rooms
+                    <button class="ghost" id="toggleNewRoom" title="Create room">+ New</button>
+                </div>
+
+                <form class="new-room hidden" id="newRoomForm">
+                    <input type="text" id="newRoomName" placeholder="Room name (min 3 chars)" minlength="3" required>
+                    <input type="text" id="newRoomDesc" placeholder="Description (optional)">
+                    <label class="row"><input type="checkbox" id="newRoomPrivate"> Private room</label>
+                    <p class="error" id="newRoomError"></p>
+                    <button type="submit">Create room</button>
+                </form>
+
+                <ul class="room-list" id="roomList"></ul>
+            </div>
         </aside>
 
         <!-- Chat box -->
         <main class="chat">
             <div class="chat-header">
-                <div>
-                    <h2 id="roomTitle">No room selected</h2>
-                    <p id="roomDesc">Pick a room from the list</p>
+                <div class="chat-header-info">
+                    <div class="avatar hidden" id="chatAvatar"></div>
+                    <div>
+                        <h2 id="roomTitle">No chat selected</h2>
+                        <p id="roomDesc">Pick a user or a room</p>
+                    </div>
                 </div>
                 <span id="connStatus">Connecting...</span>
             </div>
@@ -347,13 +435,13 @@
             <div id="messages">
                 <div class="placeholder">
                     <p style="font-size:40px;margin:0">💬</p>
-                    <p>Select a room to start chatting</p>
+                    <p>Select a user or a room to start chatting</p>
                 </div>
             </div>
             <div id="typing"></div>
 
             <form class="chat-input" id="chatForm">
-                <input type="text" id="messageInput" placeholder="Select a room first..." autocomplete="off" disabled>
+                <input type="text" id="messageInput" placeholder="Select a chat first..." autocomplete="off" disabled>
                 <button type="submit" id="sendButton" disabled>Send</button>
             </form>
         </main>
@@ -381,6 +469,11 @@
         let token = localStorage.getItem("token");
         let currentUser = JSON.parse(localStorage.getItem("user") || "null");
         let rooms = [];
+        let users = [];                       // everyone except me, from GET /api/users
+        const directRoomUser = new Map();     // direct roomId -> other userId
+        const userDirectRoom = new Map();     // userId -> direct roomId
+        const unread = new Map();             // userId -> unread count
+        const typingToMe = new Set();         // userIds typing in a direct chat with me
         let currentRoomId = null;
         let typingTimer = null;
         let isTyping = false;
@@ -484,6 +577,11 @@
             token = null;
             currentUser = null;
             currentRoomId = null;
+            users = [];
+            directRoomUser.clear();
+            userDirectRoom.clear();
+            unread.clear();
+            typingToMe.clear();
             localStorage.removeItem("token");
             localStorage.removeItem("user");
             resetChatBox();
@@ -502,12 +600,176 @@
 
             showPage("chat");
             try {
-                await loadRooms();
+                await Promise.all([loadRooms(), loadUsers()]);
             } catch (err) {
                 if (err.status === 401) return logout("Session expired, please log in again");
                 $("roomList").innerHTML = `<li class="empty">Could not load rooms</li>`;
             }
             connectSocket();
+        }
+
+        // ---------- Tabs ----------
+        document.querySelectorAll(".tab").forEach((tab) => {
+            tab.addEventListener("click", () => {
+                document.querySelectorAll(".tab").forEach((t) => t.classList.toggle("active", t === tab));
+                $("chatsPanel").classList.toggle("hidden", tab.dataset.tab !== "chats");
+                $("roomsPanel").classList.toggle("hidden", tab.dataset.tab !== "rooms");
+            });
+        });
+
+        // ---------- Users list (WhatsApp-style) ----------
+        async function loadUsers() {
+            users = await api("/api/users");
+            renderUsers();
+        }
+
+        const findUser = (id) => users.find((u) => String(u._id) === String(id));
+        const userName = (u) => u.displayName || u.username;
+
+        // Stable colour per user, like WhatsApp avatars
+        function colorFor(id) {
+            const colors = ["#2563eb", "#16a34a", "#db2777", "#ea580c", "#7c3aed", "#0891b2", "#ca8a04", "#dc2626"];
+            let hash = 0;
+            for (const ch of String(id)) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
+            return colors[hash % colors.length];
+        }
+
+        function formatLastSeen(date) {
+            if (!date) return "Offline";
+            const d = new Date(date);
+            const time = d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+            const today = new Date();
+            const yesterday = new Date(today);
+            yesterday.setDate(today.getDate() - 1);
+            if (d.toDateString() === today.toDateString()) return `last seen today at ${time}`;
+            if (d.toDateString() === yesterday.toDateString()) return `last seen yesterday at ${time}`;
+            return `last seen ${d.toLocaleDateString()} at ${time}`;
+        }
+
+        // Returns { text, cls } for a user's live status line
+        function statusOf(user) {
+            if (typingToMe.has(String(user._id))) return { text: "typing...", cls: "typing" };
+            if (user.online) return { text: "Online", cls: "online" };
+            return { text: formatLastSeen(user.lastSeen), cls: "" };
+        }
+
+        function makeAvatar(user) {
+            const avatar = document.createElement("div");
+            avatar.className = "avatar";
+            avatar.style.background = colorFor(user._id);
+            avatar.textContent = userName(user)[0].toUpperCase();
+            const dot = document.createElement("span");
+            dot.className = "dot" + (user.online ? " online" : "");
+            avatar.appendChild(dot);
+            return avatar;
+        }
+
+        function renderUsers() {
+            const list = $("userList");
+            const query = $("userSearch").value.trim().toLowerCase();
+            list.innerHTML = "";
+
+            const shown = users
+                .filter((u) => !query || userName(u).toLowerCase().includes(query) || u.username.toLowerCase().includes(query))
+                // Online first, then alphabetical
+                .sort((a, b) => (b.online - a.online) || userName(a).localeCompare(userName(b)));
+
+            if (shown.length === 0) {
+                list.innerHTML = `<li class="empty">${users.length ? "No matches" : "No other users yet"}</li>`;
+                return;
+            }
+
+            const currentUserId = directRoomUser.get(currentRoomId);
+            shown.forEach((user) => {
+                const id = String(user._id);
+                const li = document.createElement("li");
+                li.classList.toggle("active", id === currentUserId);
+
+                const info = document.createElement("div");
+                info.className = "info-col";
+                const name = document.createElement("strong");
+                name.textContent = userName(user);
+                const status = statusOf(user);
+                const sub = document.createElement("span");
+                sub.className = "status-text " + status.cls;
+                sub.textContent = status.text;
+                info.append(name, sub);
+
+                li.append(makeAvatar(user), info);
+
+                const count = unread.get(id);
+                if (count) {
+                    const badge = document.createElement("span");
+                    badge.className = "badge";
+                    badge.textContent = count > 99 ? "99+" : count;
+                    li.appendChild(badge);
+                }
+
+                li.addEventListener("click", () => openDirectChat(id));
+                list.appendChild(li);
+            });
+        }
+
+        $("userSearch").addEventListener("input", renderUsers);
+
+        async function openDirectChat(userId) {
+            try {
+                let roomId = userDirectRoom.get(userId);
+                if (!roomId) {
+                    const room = await api(`/api/rooms/direct/${userId}`, { method: "POST" });
+                    roomId = room._id;
+                    linkDirectRoom(roomId, userId);
+                }
+                joinRoom(roomId);
+            } catch (err) {
+                showInfo("Could not open chat: " + err.message, true);
+            }
+        }
+
+        function linkDirectRoom(roomId, userId) {
+            directRoomUser.set(String(roomId), String(userId));
+            userDirectRoom.set(String(userId), String(roomId));
+        }
+
+        // Header for the open chat: user's live status, or room info
+        function renderChatHeader() {
+            const desc = $("roomDesc");
+            const avatarBox = $("chatAvatar");
+            const otherId = directRoomUser.get(currentRoomId);
+            const other = otherId && findUser(otherId);
+            desc.className = "";
+
+            if (other) {
+                const status = statusOf(other);
+                $("roomTitle").textContent = userName(other);
+                desc.textContent = status.text;
+                desc.className = status.cls;
+                const fresh = makeAvatar(other);
+                avatarBox.replaceWith(fresh);
+                fresh.id = "chatAvatar";
+                return;
+            }
+
+            avatarBox.classList.add("hidden");
+            if (!currentRoomId) {
+                $("roomTitle").textContent = "No chat selected";
+                desc.textContent = "Pick a user or a room";
+                return;
+            }
+            const room = rooms.find((r) => r._id === currentRoomId) || {};
+            $("roomTitle").textContent = (room.isPrivate ? "🔒 " : "# ") + (room.name || "Room");
+            desc.textContent = room.description || "Say hello 👋";
+        }
+
+        function setUserOnline(userId, online, lastSeen) {
+            const user = findUser(userId);
+            if (!user) return false;
+            user.online = online;
+            if (lastSeen) user.lastSeen = lastSeen;
+            if (!online) typingToMe.delete(String(userId));
+            renderUsers();
+            renderChatHeader();
+            return true;
         }
 
         async function loadRooms() {
@@ -570,18 +832,17 @@
         function setChatEnabled(enabled) {
             $("messageInput").disabled = !enabled;
             $("sendButton").disabled = !enabled;
-            $("messageInput").placeholder = enabled ? "Type a message..." : "Select a room first...";
+            $("messageInput").placeholder = enabled ? "Type a message..." : "Select a chat first...";
         }
 
         function resetChatBox() {
             setChatEnabled(false);
-            $("roomTitle").textContent = "No room selected";
-            $("roomDesc").textContent = "Pick a room from the list";
+            renderChatHeader();
             $("typing").textContent = "";
             $("messages").innerHTML = `
                 <div class="placeholder">
                     <p style="font-size:40px;margin:0">💬</p>
-                    <p>Select a room to start chatting</p>
+                    <p>Select a user or a room to start chatting</p>
                 </div>`;
         }
 
@@ -639,11 +900,14 @@
             // Only leave the old room once the new join succeeded
             if (isNew && currentRoomId) socket.emit("leave-room", { roomId: currentRoomId });
             currentRoomId = roomId;
-            renderRooms();
 
-            const room = rooms.find((r) => r._id === roomId) || {};
-            $("roomTitle").textContent = (room.isPrivate ? "🔒 " : "# ") + (room.name || "Room");
-            $("roomDesc").textContent = room.description || "Say hello 👋";
+            // Opening a direct chat clears its unread badge
+            const otherId = directRoomUser.get(roomId);
+            if (otherId) unread.delete(otherId);
+
+            renderRooms();
+            renderUsers();
+            renderChatHeader();
 
             if (isNew) {
                 typingUsers.clear();
@@ -714,19 +978,19 @@
             status.textContent = "🟡 Connecting...";
 
             socket.on("connect", () => {
-                status.textContent = "🟢 Online";
+                status.textContent = "🟢 Connected";
                 // Re-join the open room after a reconnect
                 if (currentRoomId) socket.emit("join-room", { roomId: currentRoomId });
             });
 
             socket.on("connect_error", (err) => {
-                status.textContent = "🔴 Offline";
+                status.textContent = "🔴 Disconnected";
                 console.error("connect_error:", err.message);
                 if (/auth/i.test(err.message)) logout(err.message);
             });
 
             socket.on("disconnect", () => {
-                status.textContent = "🔴 Offline";
+                status.textContent = "🔴 Disconnected";
                 setChatEnabled(false);
             });
 
@@ -737,20 +1001,70 @@
 
             socket.on("joined-room", ({ roomId }) => onJoinedRoom(roomId));
 
+            // ----- Live presence -----
+            // Full list of online user ids, sent once when we connect
+            socket.on("online-users", (ids) => {
+                const online = new Set(ids.map(String));
+                users.forEach((u) => (u.online = online.has(String(u._id))));
+                renderUsers();
+                renderChatHeader();
+            });
+
+            socket.on("user-online", ({ userId }) => {
+                // Unknown id = someone who just registered: reload the list
+                if (!setUserOnline(userId, true)) loadUsers().catch(console.error);
+            });
+
+            socket.on("user-offline", ({ userId, lastSeen }) => {
+                setUserOnline(userId, false, lastSeen);
+            });
+
+            // ----- Messages -----
             socket.on("new-message", (msg) => {
-                if (String(msg.room) !== String(currentRoomId)) return;
-                if (msg.user?._id) typingUsers.delete(String(msg.user._id));
+                const roomId = String(msg.room);
+                const senderId = String(msg.user?._id || "");
+                const fromMe = senderId === String(currentUser._id);
+
+                // A message for a room we aren't viewing can only be a direct message
+                // (group messages only reach the room we're in)
+                if (roomId !== String(currentRoomId)) {
+                    if (fromMe) return; // sent from another tab of mine
+                    linkDirectRoom(roomId, senderId);
+                    unread.set(senderId, (unread.get(senderId) || 0) + 1);
+                    typingToMe.delete(senderId);
+                    renderUsers();
+                    return;
+                }
+
+                typingUsers.delete(senderId);
+                typingToMe.delete(senderId);
                 renderTyping();
+                renderUsers();
+                renderChatHeader();
                 displayMessage(msg);
             });
 
-            socket.on("user-typing", ({ userId, username }) => {
-                typingUsers.set(userId, username);
-                renderTyping();
+            // ----- Typing -----
+            const isGroupRoom = (roomId) => rooms.some((r) => r._id === roomId);
+
+            socket.on("user-typing", ({ roomId, userId, username }) => {
+                if (!isGroupRoom(roomId)) {
+                    // Direct chat: show "typing..." in the list and header
+                    linkDirectRoom(roomId, userId);
+                    typingToMe.add(String(userId));
+                    renderUsers();
+                    renderChatHeader();
+                } else if (roomId === currentRoomId) {
+                    typingUsers.set(userId, username);
+                    renderTyping();
+                }
             });
 
-            socket.on("user-stop-typing", ({ userId }) => {
+            socket.on("user-stop-typing", ({ roomId, userId }) => {
+                typingToMe.delete(String(userId));
                 typingUsers.delete(userId);
+                renderUsers();
+                renderChatHeader();
                 renderTyping();
             });
         }
