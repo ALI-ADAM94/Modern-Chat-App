@@ -6,6 +6,7 @@ const attachmentSchema = new mongoose.Schema({
     name: { type: String, required: true },
     mimeType: { type: String, required: true },
     size: { type: Number, required: true },
+    kind: { type: String, enum: ['image', 'video', 'audio', 'file'], default: 'file' },
     isImage: { type: Boolean, default: false },
 }, { _id: false });
 

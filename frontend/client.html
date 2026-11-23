@@ -491,6 +491,261 @@
             .settings-grid { grid-template-columns: 1fr; }
         }
 
+        /* ---------- Stories bar ---------- */
+        .stories-bar {
+            display: flex;
+            gap: 12px;
+            padding: 12px 12px 8px;
+            overflow-x: auto;
+            border-bottom: 1px solid var(--border);
+            scrollbar-width: thin;
+        }
+
+        .story-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            width: 62px;
+            flex-shrink: 0;
+            cursor: pointer;
+            background: none;
+            padding: 0;
+            color: var(--text);
+            position: relative;
+        }
+
+        .story-item:hover { background: none; }
+        .story-item span { font-size: 11px; max-width: 62px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+        .story-ring {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            padding: 3px;
+            background: conic-gradient(#22c55e, #2563eb, #db2777, #22c55e);
+        }
+
+        .story-ring.seen { background: #cbd5e1; }
+        .story-ring.none { background: transparent; border: 2px dashed #cbd5e1; padding: 1px; }
+        .story-ring .avatar { width: 100%; height: 100%; border: 2px solid white; font-size: 18px; }
+
+        .story-add {
+            position: absolute;
+            top: 38px;
+            left: 40px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            border: 2px solid white;
+            font-size: 14px;
+            line-height: 15px;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        /* ---------- Overlays (story viewer, story composer, file viewer) ---------- */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 60;
+            background: rgba(15, 23, 42, .92);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .overlay .close-x {
+            position: absolute;
+            top: 14px;
+            right: 16px;
+            background: rgba(255,255,255,.15);
+            font-size: 18px;
+            padding: 6px 12px;
+            z-index: 3;
+        }
+
+        .modal {
+            background: white;
+            color: var(--text);
+            border-radius: 14px;
+            width: min(440px, 94vw);
+            max-height: 92vh;
+            overflow-y: auto;
+            padding: 22px;
+            position: relative;
+        }
+
+        .modal h3 { margin: 0 0 14px; }
+        .modal form { display: flex; flex-direction: column; gap: 10px; }
+        .modal textarea { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; resize: vertical; min-height: 60px; }
+
+        .segmented { display: flex; background: #f1f5f9; border-radius: 10px; padding: 3px; gap: 3px; }
+        .segmented button { flex: 1; background: none; color: var(--muted); padding: 8px; }
+        .segmented button.active { background: white; color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,.1); }
+
+        .drop-box {
+            border: 2px dashed #cbd5e1;
+            border-radius: 12px;
+            padding: 18px;
+            text-align: center;
+            color: var(--muted);
+            cursor: pointer;
+        }
+
+        .drop-box:hover { border-color: var(--primary); color: var(--primary); }
+        .drop-box img, .drop-box video { max-width: 100%; max-height: 240px; border-radius: 8px; display: block; margin: 0 auto; }
+
+        /* Story viewer */
+        .story-stage {
+            position: relative;
+            width: min(420px, 100vw);
+            height: min(760px, 100vh);
+            background: #000;
+            border-radius: 14px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .story-stage > img, .story-stage > video { max-width: 100%; max-height: 100%; }
+
+        .story-progress { position: absolute; top: 10px; left: 10px; right: 10px; display: flex; gap: 4px; z-index: 2; }
+        .story-progress div { flex: 1; height: 3px; background: rgba(255,255,255,.35); border-radius: 2px; overflow: hidden; }
+        .story-progress div i { display: block; height: 100%; width: 0; background: white; }
+
+        .story-head { position: absolute; top: 22px; left: 12px; right: 60px; display: flex; align-items: center; gap: 10px; z-index: 2; }
+        .story-head .avatar { width: 36px; height: 36px; font-size: 15px; }
+        .story-head small { display: block; opacity: .8; font-size: 12px; }
+
+        .story-tap { position: absolute; top: 70px; bottom: 90px; width: 35%; z-index: 1; cursor: pointer; }
+        .story-tap.prev { left: 0; }
+        .story-tap.next { right: 0; }
+
+        .story-caption {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 52px;
+            padding: 12px 16px;
+            text-align: center;
+            background: linear-gradient(transparent, rgba(0,0,0,.6));
+            overflow-wrap: anywhere;
+            z-index: 2;
+        }
+
+        .story-foot { position: absolute; left: 0; right: 0; bottom: 0; padding: 10px 14px; display: flex; gap: 8px; justify-content: center; z-index: 2; }
+        .story-foot button { background: rgba(255,255,255,.15); font-size: 13px; padding: 8px 14px; }
+        .story-foot button:hover { background: rgba(255,255,255,.28); }
+
+        .story-viewers {
+            position: absolute;
+            left: 10px;
+            right: 10px;
+            bottom: 56px;
+            max-height: 45%;
+            overflow-y: auto;
+            background: white;
+            color: var(--text);
+            border-radius: 12px;
+            padding: 8px;
+            z-index: 3;
+        }
+
+        .story-viewers .row { display: flex; align-items: center; gap: 10px; padding: 6px; font-size: 14px; }
+        .story-viewers .row .avatar { width: 32px; height: 32px; font-size: 13px; }
+
+        .link-card {
+            width: 82%;
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            border-radius: 16px;
+            padding: 28px 20px;
+            text-align: center;
+            z-index: 2;
+            position: relative;
+        }
+
+        .link-card .platform { font-size: 42px; }
+        .link-card h4 { margin: 8px 0 4px; font-size: 20px; }
+        .link-card p { margin: 0 0 18px; opacity: .85; font-size: 13px; overflow-wrap: anywhere; }
+        .link-card a { display: inline-block; background: white; color: #1e293b; padding: 10px 20px; border-radius: 22px; text-decoration: none; font-weight: 700; }
+
+        /* File viewer */
+        .viewer-top {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background: rgba(0,0,0,.4);
+            z-index: 2;
+        }
+
+        .viewer-top .grow { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .viewer-top small { opacity: .75; margin-left: 6px; }
+        .viewer-top a, .viewer-top button { background: rgba(255,255,255,.15); color: white; text-decoration: none; padding: 7px 12px; border-radius: 8px; font-size: 14px; }
+        .viewer-body { width: 100%; height: 100%; padding: 64px 20px 20px; display: flex; align-items: center; justify-content: center; }
+        .viewer-body img, .viewer-body video { max-width: 100%; max-height: 100%; border-radius: 8px; }
+        .viewer-body img.zoomed { max-width: none; max-height: none; cursor: zoom-out; }
+        .viewer-body img { cursor: zoom-in; }
+        .viewer-body iframe { width: min(1000px, 100%); height: 100%; border: none; background: white; border-radius: 8px; }
+        .viewer-body pre { width: min(1000px, 100%); max-height: 100%; overflow: auto; background: #0f172a; color: #e2e8f0; padding: 16px; border-radius: 8px; margin: 0; font-size: 13px; white-space: pre-wrap; }
+        .viewer-body .no-preview { text-align: center; }
+        .viewer-body .no-preview .big { font-size: 70px; }
+        .viewer-body audio { width: min(480px, 100%); }
+        .viewer-body.scroll { overflow: auto; align-items: flex-start; }
+
+        /* Video & audio in messages */
+        .attachment-video { position: relative; display: block; cursor: pointer; margin-bottom: 4px; }
+        .attachment-video video { display: block; max-width: 260px; max-height: 220px; border-radius: 10px; background: #000; }
+        .attachment-video .play {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            color: white;
+            text-shadow: 0 2px 8px rgba(0,0,0,.6);
+        }
+
+        .attachment-audio { margin-bottom: 4px; }
+        .attachment-audio audio { display: block; max-width: 260px; }
+        .attachment-audio small { margin: 2px 0 0 !important; text-align: left !important; }
+        .attachment-file { cursor: pointer; }
+
+        /* ---------- Emoji picker ---------- */
+        .chat-input { position: relative; }
+
+        .emoji-panel {
+            position: absolute;
+            bottom: 66px;
+            left: 14px;
+            width: 330px;
+            max-width: calc(100vw - 28px);
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            box-shadow: 0 8px 30px rgba(0,0,0,.15);
+            z-index: 20;
+            overflow: hidden;
+        }
+
+        .emoji-tabs { display: flex; border-bottom: 1px solid var(--border); }
+        .emoji-tabs button { flex: 1; background: none; padding: 8px 0; font-size: 18px; border-radius: 0; border-bottom: 2px solid transparent; }
+        .emoji-tabs button.active { border-bottom-color: var(--primary); background: #f8fafc; }
+        .emoji-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 2px; padding: 8px; height: 220px; overflow-y: auto; align-content: start; }
+        .emoji-grid button { background: none; font-size: 22px; padding: 4px 0; border-radius: 6px; line-height: 1.2; }
+        .emoji-grid button:hover { background: #f1f5f9; }
+        .emoji-grid .empty { grid-column: 1 / -1; color: var(--muted); font-size: 13px; text-align: center; padding: 20px 0; }
+
         @media (max-width: 700px) {
             .app { flex-direction: column; }
             .sidebar { width: 100%; max-height: 45%; border-right: none; border-bottom: 1px solid var(--border); }
@@ -562,6 +817,7 @@
 
             <!-- Chats tab: everyone, with live Online / last seen -->
             <div class="tab-panel" id="chatsPanel">
+                <div class="stories-bar" id="storiesBar"></div>
                 <div class="search">
                     <input type="search" id="userSearch" placeholder="🔍 Search by name, username or about" autocomplete="off">
                 </div>
@@ -629,11 +885,63 @@
 
             <form class="chat-input" id="chatForm">
                 <input type="file" id="fileInput" class="hidden">
-                <button type="button" class="icon-btn" id="attachButton" title="Attach file or image (max 10 MB)" disabled>📎</button>
+                <button type="button" class="icon-btn" id="emojiButton" title="Emoji" disabled>😊</button>
+                <button type="button" class="icon-btn" id="attachButton" title="Attach a file, image, video or audio (max 50 MB)" disabled>📎</button>
+                <div class="emoji-panel hidden" id="emojiPanel">
+                    <div class="emoji-tabs" id="emojiTabs"></div>
+                    <div class="emoji-grid" id="emojiGrid"></div>
+                </div>
                 <input type="text" id="messageInput" placeholder="Select a chat first..." autocomplete="off" disabled>
                 <button type="submit" id="sendButton" disabled>Send</button>
             </form>
         </main>
+    </div>
+
+    <!-- ================= Story composer ================= -->
+    <div class="overlay hidden" id="storyComposer">
+        <div class="modal">
+            <button type="button" class="ghost close-x" id="closeComposer" style="color:var(--muted);background:none">✕</button>
+            <h3>Add to your story</h3>
+            <form id="storyForm">
+                <div class="segmented">
+                    <button type="button" class="active" data-story-type="media">📷 Photo / Video</button>
+                    <button type="button" data-story-type="link">🔗 Social link</button>
+                </div>
+
+                <div id="storyMediaBox">
+                    <input type="file" id="storyFile" accept="image/png,image/jpeg,image/gif,image/webp,video/mp4,video/webm,video/ogg,video/quicktime" class="hidden">
+                    <div class="drop-box" id="storyDrop">
+                        <div id="storyPreview">📤<br>Click to choose a photo or video<br><small>max 50 MB</small></div>
+                    </div>
+                </div>
+
+                <div id="storyLinkBox" class="hidden">
+                    <input type="text" id="storyLink" placeholder="https://instagram.com/yourname">
+                    <p class="hint" style="font-size:12px;color:var(--muted);margin:6px 0 0">Instagram, YouTube, TikTok, X, Facebook, LinkedIn, GitHub or any website</p>
+                </div>
+
+                <textarea id="storyCaption" maxlength="200" placeholder="Add a caption (optional)"></textarea>
+                <p class="error" id="storyError"></p>
+                <button type="submit" id="storySubmit">Share story</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================= Story viewer ================= -->
+    <div class="overlay hidden" id="storyViewer">
+        <button type="button" class="close-x" id="closeStory" title="Close (Esc)">✕</button>
+        <div class="story-stage" id="storyStage"></div>
+    </div>
+
+    <!-- ================= File viewer ================= -->
+    <div class="overlay hidden" id="fileViewer">
+        <div class="viewer-top">
+            <div class="grow"><strong id="fvName"></strong><small id="fvSize"></small></div>
+            <a id="fvDownload" download>⬇ Download</a>
+            <a id="fvOpen" target="_blank" rel="noopener">↗ Open</a>
+            <button type="button" id="closeViewer" title="Close (Esc)">✕</button>
+        </div>
+        <div class="viewer-body" id="fvBody"></div>
     </div>
 
     <!-- ================= Settings dashboard ================= -->
@@ -749,7 +1057,8 @@
         const messageCache = new Map();       // messageId -> message (for live edit/delete)                 // message being edited
         let pendingFile = null;               // file picked for the next message
         let uploading = false;                // true while a file is being uploaded
-        const MAX_FILE_SIZE = 10 * 1024 * 1024;
+        const MAX_FILE_SIZE = 50 * 1024 * 1024;
+        let storyGroups = [];                 // [{ user, stories, allSeen }] from GET /api/stories
         let typingTimer = null;
         let isTyping = false;
         const typingUsers = new Map();
@@ -861,6 +1170,10 @@
             localStorage.removeItem("user");
             resetChatBox();
             closeSettings();
+            closeStoryViewer();
+            closeFileViewer();
+            $("storyComposer").classList.add("hidden");
+            storyGroups = [];
             showPage("login");
             $("loginError").textContent = message;
         }
@@ -895,6 +1208,7 @@
             showPage("chat");
             try {
                 await Promise.all([loadRooms(), loadUsers()]);
+                loadStories().catch(console.error);
             } catch (err) {
                 if (err.status === 401) return logout("Session expired, please log in again");
                 $("roomList").innerHTML = `<li class="empty">Could not load rooms</li>`;
@@ -1162,7 +1476,8 @@
             $("messageInput").disabled = !enabled;
             $("sendButton").disabled = !enabled;
             $("attachButton").disabled = !enabled;
-            if (!enabled) { cancelEdit(); clearAttachment(); }
+            $("emojiButton").disabled = !enabled;
+            if (!enabled) { cancelEdit(); clearAttachment(); closeEmoji(); }
             $("messageInput").placeholder = enabled ? "Type a message..." : "Select a chat first...";
         }
 
@@ -1268,40 +1583,657 @@
             }
         }
 
+        const kindOf = (att) => att.kind || (att.isImage ? "image" : "file");
+
         function renderAttachment(att) {
             const url = fileUrl(att.url);
-            if (att.isImage) {
-                const link = document.createElement("a");
-                link.href = url;
-                link.target = "_blank";
-                link.rel = "noopener";
+            const kind = kindOf(att);
+
+            if (kind === "image") {
                 const img = document.createElement("img");
                 img.className = "attachment-img";
                 img.src = url;
                 img.alt = att.name;
                 img.loading = "lazy";
                 img.addEventListener("load", scrollToBottom, { once: true });
-                link.appendChild(img);
-                return link;
+                img.addEventListener("click", () => openFileViewer(att));
+                return img;
             }
-            const link = document.createElement("a");
-            link.className = "attachment-file";
-            link.href = url;
-            link.download = att.name;
-            link.target = "_blank";
-            link.rel = "noopener";
+
+            if (kind === "video") {
+                const box = document.createElement("div");
+                box.className = "attachment-video";
+                box.title = "Play " + att.name;
+                const video = document.createElement("video");
+                video.src = url;
+                video.preload = "metadata";
+                video.muted = true;
+                video.playsInline = true;
+                video.addEventListener("loadedmetadata", scrollToBottom, { once: true });
+                const play = document.createElement("div");
+                play.className = "play";
+                play.textContent = "▶";
+                box.append(video, play);
+                box.addEventListener("click", () => openFileViewer(att));
+                return box;
+            }
+
+            if (kind === "audio") {
+                const box = document.createElement("div");
+                box.className = "attachment-audio";
+                const audio = document.createElement("audio");
+                audio.controls = true;
+                audio.preload = "metadata";
+                audio.src = url;
+                const label = document.createElement("small");
+                label.textContent = "🎵 " + att.name + " · " + formatSize(att.size);
+                box.append(audio, label);
+                return box;
+            }
+
+            const card = document.createElement("div");
+            card.className = "attachment-file";
+            card.title = "Preview " + att.name;
             const icon = document.createElement("span");
             icon.className = "icon";
-            icon.textContent = "📄";
+            icon.textContent = fileIcon(att.name);
             const info = document.createElement("div");
             const name = document.createElement("div");
             name.textContent = att.name;
             const size = document.createElement("small");
-            size.textContent = formatSize(att.size) + " · Download";
+            size.textContent = formatSize(att.size) + " · Click to view";
             info.append(name, size);
-            link.append(icon, info);
-            return link;
+            card.append(icon, info);
+            card.addEventListener("click", () => openFileViewer(att));
+            return card;
         }
+
+        const extOf = (name) => (String(name).toLowerCase().match(/\.([a-z0-9]+)$/) || [])[1] || "";
+        const TEXT_EXTS = ["txt", "md", "json", "csv", "log", "js", "ts", "css", "html", "xml", "yml", "yaml", "py", "java", "c", "cpp", "sql", "env.example"];
+
+        function fileIcon(name) {
+            const ext = extOf(name);
+            if (ext === "pdf") return "📕";
+            if (["zip", "rar", "7z", "tar", "gz"].includes(ext)) return "🗜️";
+            if (["doc", "docx"].includes(ext)) return "📘";
+            if (["xls", "xlsx", "csv"].includes(ext)) return "📗";
+            if (["ppt", "pptx"].includes(ext)) return "📙";
+            if (TEXT_EXTS.includes(ext)) return "📝";
+            return "📄";
+        }
+
+        // ---------- File viewer (images, videos, audio, PDF, text) ----------
+        let viewerObjectUrl = null;
+
+        async function openFileViewer(att) {
+            const url = fileUrl(att.url);
+            const kind = kindOf(att);
+            const body = $("fvBody");
+            body.innerHTML = "";
+            body.classList.remove("scroll");
+            $("fvName").textContent = att.name;
+            $("fvSize").textContent = att.size ? formatSize(att.size) : "";
+            $("fvDownload").href = url;
+            $("fvDownload").download = att.name;
+            $("fvOpen").href = url;
+            $("fvOpen").classList.toggle("hidden", kind === "file");
+            $("fileViewer").classList.remove("hidden");
+
+            if (kind === "image") {
+                const img = document.createElement("img");
+                img.src = url;
+                img.alt = att.name;
+                img.addEventListener("click", () => {
+                    img.classList.toggle("zoomed");
+                    body.classList.toggle("scroll", img.classList.contains("zoomed"));
+                });
+                body.appendChild(img);
+                return;
+            }
+            if (kind === "video") {
+                const video = document.createElement("video");
+                video.src = url;
+                video.controls = true;
+                video.autoplay = true;
+                video.playsInline = true;
+                body.appendChild(video);
+                return;
+            }
+            if (kind === "audio") {
+                const audio = document.createElement("audio");
+                audio.src = url;
+                audio.controls = true;
+                audio.autoplay = true;
+                body.appendChild(audio);
+                return;
+            }
+
+            const ext = extOf(att.name);
+            try {
+                if (ext === "pdf") {
+                    // The server sends files as downloads; re-wrap the bytes so the browser's PDF viewer can show them
+                    const blob = await (await fetch(url)).blob();
+                    viewerObjectUrl = URL.createObjectURL(new Blob([blob], { type: "application/pdf" }));
+                    const frame = document.createElement("iframe");
+                    frame.src = viewerObjectUrl;
+                    frame.title = att.name;
+                    body.appendChild(frame);
+                    return;
+                }
+                if (TEXT_EXTS.includes(ext) || /\.env\.example$/i.test(att.name)) {
+                    if (att.size > 1024 * 1024) throw new Error("too big to preview");
+                    const text = await (await fetch(url)).text();
+                    const pre = document.createElement("pre");
+                    pre.textContent = text; // shown as plain text, never as HTML
+                    body.appendChild(pre);
+                    return;
+                }
+            } catch (err) {
+                console.warn("Preview failed:", err.message);
+            }
+
+            body.innerHTML = `<div class="no-preview"><div class="big">${fileIcon(att.name)}</div><p>No preview for this file type.</p></div>`;
+            const dl = document.createElement("a");
+            dl.href = url;
+            dl.download = att.name;
+            dl.textContent = "⬇ Download " + att.name;
+            dl.style.cssText = "color:white";
+            body.querySelector(".no-preview").appendChild(dl);
+        }
+
+        function closeFileViewer() {
+            const viewer = $("fileViewer");
+            if (viewer.classList.contains("hidden")) return;
+            viewer.classList.add("hidden");
+            $("fvBody").innerHTML = ""; // stops video/audio
+            if (viewerObjectUrl) { URL.revokeObjectURL(viewerObjectUrl); viewerObjectUrl = null; }
+        }
+
+        $("closeViewer").addEventListener("click", closeFileViewer);
+        $("fileViewer").addEventListener("click", (e) => { if (e.target.id === "fileViewer" || e.target.id === "fvBody") closeFileViewer(); });
+
+        // ---------- Emoji picker ----------
+        const EMOJIS = {
+            "🕘": [],
+            "😀": "😀 😃 😄 😁 😆 😅 😂 🤣 🥲 😊 😇 🙂 🙃 😉 😌 😍 🥰 😘 😗 😙 😚 😋 😛 😝 😜 🤪 🤨 🧐 🤓 😎 🥸 🤩 🥳 😏 😒 😞 😔 😟 😕 🙁 ☹️ 😣 😖 😫 😩 🥺 😢 😭 😤 😠 😡 🤬 🤯 😳 🥵 🥶 😱 😨 😰 😥 😓 🤗 🤔 🤭 🤫 🤥 😶 😐 😑 😬 🙄 😯 😦 😧 😮 😲 🥱 😴 🤤 😪 😵 🤐 🥴 🤢 🤮 🤧 😷 🤒 🤕 🤑 🤠 😈 👿 👻 💀 👽 🤖 💩 😺 😸 😹 😻 😼 😽 🙀 😿 😾".split(" "),
+            "👋": "👋 🤚 🖐️ ✋ 🖖 👌 🤌 🤏 ✌️ 🤞 🤟 🤘 🤙 👈 👉 👆 👇 ☝️ 👍 👎 ✊ 👊 🤛 🤜 👏 🙌 👐 🤲 🤝 🙏 ✍️ 💅 🤳 💪 🦾 🦵 🦶 👂 👃 🧠 👀 👁️ 👅 👄 💋 👶 🧒 👦 👧 🧑 👱 👨 🧔 👩 🧓 👴 👵 🙍 🙎 🙅 🙆 💁 🙋 🧏 🙇 🤦 🤷 👮 🕵️ 💂 👷 🤴 👸 👳 🧕 🤵 👰 🤰 🤱 👼 🎅 🤶 🦸 🦹 🧙 🧚 🧛 🧜 🧝 🧞 🧟 💃 🕺 👯 🧖 🧗 🏃 🚶 🧍 🧎".split(" "),
+            "❤️": "❤️ 🧡 💛 💚 💙 💜 🖤 🤍 🤎 💔 ❣️ 💕 💞 💓 💗 💖 💘 💝 💟 ☮️ ✝️ ☪️ 🕉️ ☯️ ✡️ 🔯 ♈ ♉ ♊ ♋ ♌ ♍ ♎ ♏ ♐ ♑ ♒ ♓ ⛎ 💯 ✅ ❌ ❗ ❓ ‼️ ⁉️ 💤 💢 💥 💫 💦 💨 🕳️ 💬 👁️‍🗨️ 🗨️ 🗯️ 💭 🔥 ✨ 🌟 ⭐ ⚡ 🎉 🎊 🎈 🎁 🏆 🥇 🥈 🥉".split(" "),
+            "🐶": "🐶 🐱 🐭 🐹 🐰 🦊 🐻 🐼 🐨 🐯 🦁 🐮 🐷 🐸 🐵 🙈 🙉 🙊 🐒 🐔 🐧 🐦 🐤 🦆 🦅 🦉 🦇 🐺 🐗 🐴 🦄 🐝 🐛 🦋 🐌 🐞 🐜 🦟 🐢 🐍 🦎 🐙 🦑 🦐 🦀 🐡 🐠 🐟 🐬 🐳 🐋 🦈 🐊 🐅 🐆 🦓 🦍 🐘 🦛 🦏 🐪 🐫 🦒 🦘 🐃 🐂 🐄 🐎 🐖 🐏 🐑 🦙 🐐 🦌 🐕 🐩 🐈 🐓 🦃 🦚 🦜 🦢 🕊️ 🐇 🦝 🦨 🦡 🦦 🦥 🐁 🐀 🐿️ 🦔 🌵 🎄 🌲 🌳 🌴 🌱 🌿 ☘️ 🍀 🍃 🍂 🍁 🍄 🌾 💐 🌷 🌹 🥀 🌺 🌸 🌼 🌻 🌞 🌝 🌛 🌚 🌙 🌎 🪐 ☀️ 🌤️ ⛅ 🌧️ ⛈️ 🌩️ ❄️ ☃️ ⛄ 🌈 ☔ 🌊".split(" "),
+            "🍔": "🍏 🍎 🍐 🍊 🍋 🍌 🍉 🍇 🍓 🫐 🍈 🍒 🍑 🥭 🍍 🥥 🥝 🍅 🍆 🥑 🥦 🥬 🥒 🌶️ 🌽 🥕 🧄 🧅 🥔 🍠 🥐 🥯 🍞 🥖 🥨 🧀 🥚 🍳 🧈 🥞 🧇 🥓 🥩 🍗 🍖 🌭 🍔 🍟 🍕 🥪 🥙 🧆 🌮 🌯 🥗 🥘 🥫 🍝 🍜 🍲 🍛 🍣 🍱 🥟 🍤 🍙 🍚 🍘 🍥 🥠 🍢 🍡 🍧 🍨 🍦 🥧 🧁 🍰 🎂 🍮 🍭 🍬 🍫 🍿 🍩 🍪 🌰 🥜 🍯 🥛 🍼 ☕ 🍵 🧃 🥤 🧋 🍶 🍺 🍻 🥂 🍷 🥃 🍸 🍹 🧉 🧊".split(" "),
+            "⚽": "⚽ 🏀 🏈 ⚾ 🥎 🎾 🏐 🏉 🥏 🎱 🏓 🏸 🏒 🏑 🥍 🏏 🥅 ⛳ 🏹 🎣 🥊 🥋 🎽 🛹 🛼 ⛸️ 🥌 🎿 ⛷️ 🏂 🏋️ 🤸 ⛹️ 🤺 🤾 🏌️ 🏇 🧘 🏄 🏊 🤽 🚣 🧗 🚵 🚴 🎮 🕹️ 🎲 ♟️ 🎯 🎳 🎤 🎧 🎼 🎹 🥁 🎷 🎺 🎸 🪕 🎻 🎬 🎨 🚗 🚕 🚙 🚌 🏎️ 🚓 🚑 🚒 🚚 🚜 🛵 🏍️ 🚲 ✈️ 🚀 🛸 🚁 ⛵ 🚤 🚢 🏠 🏡 🏢 🏥 🏦 🏨 🏫 🕌 🕋 ⛪ 🗼 🗽 🏰 🎡 🎢 ⛺ 🌋 🗻 🏖️ 🏝️ 🏜️".split(" "),
+            "💡": "⌚ 📱 💻 ⌨️ 🖥️ 🖨️ 🖱️ 💾 💿 📷 📸 📹 🎥 📞 ☎️ 📺 📻 ⏰ ⌛ ⏳ 📡 🔋 🔌 💡 🔦 🕯️ 💸 💵 💰 💳 💎 ⚖️ 🧰 🔧 🔨 🛠️ ⚙️ 🔩 🧲 🔫 💣 🔪 🛡️ 🔮 💊 💉 🧬 🦠 🧪 🌡️ 🧹 🧺 🧻 🚽 🛁 🔑 🗝️ 🚪 🛋️ 🛏️ 🧸 🖼️ 🛍️ 🛒 🎀 ✉️ 📩 📨 📧 📦 📫 📮 📜 📃 📄 📑 📊 📈 📉 🗒️ 📆 📅 📇 🗃️ 🗄️ 📋 📁 📂 🗂️ 📰 📓 📔 📒 📕 📗 📘 📙 📚 📖 🔖 🔗 📎 📐 📏 📌 📍 ✂️ 🖊️ 🖋️ ✒️ 🖌️ 🖍️ 📝 ✏️ 🔍 🔎 🔏 🔐 🔒 🔓".split(" "),
+            "🏳️": "🏳️ 🏴 🏁 🚩 🏳️‍🌈 🇸🇦 🇪🇬 🇦🇪 🇶🇦 🇰🇼 🇧🇭 🇴🇲 🇯🇴 🇱🇧 🇸🇾 🇮🇶 🇵🇸 🇾🇪 🇸🇩 🇱🇾 🇹🇳 🇩🇿 🇲🇦 🇹🇷 🇺🇸 🇬🇧 🇫🇷 🇩🇪 🇮🇹 🇪🇸 🇧🇷 🇯🇵 🇨🇳 🇮🇳 🇰🇷 🇨🇦 🇦🇺".split(" "),
+        };
+        let emojiTab = "😀";
+
+        function recentEmojis() {
+            try { return JSON.parse(localStorage.getItem("recentEmojis") || "[]"); } catch { return []; }
+        }
+
+        function renderEmojiPanel() {
+            const tabs = $("emojiTabs");
+            tabs.innerHTML = "";
+            Object.keys(EMOJIS).forEach((key) => {
+                const b = document.createElement("button");
+                b.type = "button";
+                b.textContent = key;
+                b.title = key === "🕘" ? "Recent" : "";
+                b.classList.toggle("active", key === emojiTab);
+                b.addEventListener("click", () => { emojiTab = key; renderEmojiPanel(); });
+                tabs.appendChild(b);
+            });
+
+            const grid = $("emojiGrid");
+            grid.innerHTML = "";
+            const list = emojiTab === "🕘" ? recentEmojis() : EMOJIS[emojiTab];
+            if (list.length === 0) {
+                grid.innerHTML = `<div class="empty">No recent emojis yet</div>`;
+                return;
+            }
+            list.forEach((emoji) => {
+                const b = document.createElement("button");
+                b.type = "button";
+                b.textContent = emoji;
+                b.addEventListener("click", () => insertEmoji(emoji));
+                grid.appendChild(b);
+            });
+        }
+
+        function insertEmoji(emoji) {
+            const input = $("messageInput");
+            const start = input.selectionStart ?? input.value.length;
+            const end = input.selectionEnd ?? input.value.length;
+            input.value = input.value.slice(0, start) + emoji + input.value.slice(end);
+            input.focus();
+            input.setSelectionRange(start + emoji.length, start + emoji.length);
+            input.dispatchEvent(new Event("input")); // typing indicator
+
+            const recent = [emoji, ...recentEmojis().filter((e) => e !== emoji)].slice(0, 32);
+            localStorage.setItem("recentEmojis", JSON.stringify(recent));
+        }
+
+        function closeEmoji() {
+            $("emojiPanel").classList.add("hidden");
+        }
+
+        $("emojiButton").addEventListener("click", (e) => {
+            e.stopPropagation();
+            const panel = $("emojiPanel");
+            if (panel.classList.contains("hidden")) {
+                if (emojiTab === "🕘" && recentEmojis().length === 0) emojiTab = "😀";
+                renderEmojiPanel();
+                panel.classList.remove("hidden");
+            } else {
+                closeEmoji();
+            }
+        });
+
+        document.addEventListener("click", (e) => {
+            // composedPath() still contains the panel even if the clicked tab was re-rendered
+            const path = e.composedPath();
+            if (!path.includes($("emojiPanel")) && !path.includes($("emojiButton"))) closeEmoji();
+        });
+
+        // ---------- Stories ----------
+        async function loadStories() {
+            storyGroups = await api("/api/stories");
+            renderStoriesBar();
+        }
+
+        const isMe = (user) => String(user?._id) === String(currentUser?._id);
+
+        function timeAgo(date) {
+            const sec = Math.max(1, Math.floor((Date.now() - new Date(date)) / 1000));
+            if (sec < 60) return "just now";
+            if (sec < 3600) return Math.floor(sec / 60) + "m ago";
+            return Math.floor(sec / 3600) + "h ago";
+        }
+
+        function renderStoriesBar() {
+            const bar = $("storiesBar");
+            bar.innerHTML = "";
+
+            // "My story" is always first
+            const myIndex = storyGroups.findIndex((g) => isMe(g.user));
+            const mine = storyGroups[myIndex];
+            bar.appendChild(storyCircle(currentUser, mine ? "seen-mine" : "none", "My story", () => {
+                if (mine) openStoryViewer(myIndex, 0);
+                else openStoryComposer();
+            }, true));
+
+            storyGroups.forEach((group, index) => {
+                if (isMe(group.user)) return;
+                const firstUnseen = Math.max(0, group.stories.findIndex((st) => !st.seen));
+                bar.appendChild(storyCircle(group.user, group.allSeen ? "seen" : "", userName(group.user), () => openStoryViewer(index, firstUnseen)));
+            });
+        }
+
+        function storyCircle(user, ringClass, label, onClick, withAdd = false) {
+            const item = document.createElement("button");
+            item.type = "button";
+            item.className = "story-item";
+            item.title = label;
+            const ring = document.createElement("div");
+            ring.className = "story-ring " + (ringClass === "seen-mine" ? "" : ringClass);
+            const avatar = document.createElement("div");
+            avatar.className = "avatar";
+            paintAvatar(avatar, user);
+            ring.appendChild(avatar);
+            const name = document.createElement("span");
+            name.textContent = label;
+            item.append(ring, name);
+            item.addEventListener("click", onClick);
+            if (withAdd) {
+                const add = document.createElement("div");
+                add.className = "story-add";
+                add.textContent = "+";
+                add.title = "Add story";
+                add.addEventListener("click", (e) => { e.stopPropagation(); openStoryComposer(); });
+                item.appendChild(add);
+            }
+            return item;
+        }
+
+        // --- Composer ---
+        let storyMode = "media";
+        let storyFileChosen = null;
+
+        function openStoryComposer() {
+            $("storyForm").reset();
+            storyFileChosen = null;
+            setStoryMode("media");
+            $("storyPreview").innerHTML = "📤<br>Click to choose a photo or video<br><small>max 50 MB</small>";
+            $("storyError").textContent = "";
+            $("storyComposer").classList.remove("hidden");
+        }
+
+        function setStoryMode(mode) {
+            storyMode = mode;
+            document.querySelectorAll("[data-story-type]").forEach((b) => b.classList.toggle("active", b.dataset.storyType === mode));
+            $("storyMediaBox").classList.toggle("hidden", mode !== "media");
+            $("storyLinkBox").classList.toggle("hidden", mode !== "link");
+            if (mode === "link") $("storyLink").focus();
+        }
+
+        document.querySelectorAll("[data-story-type]").forEach((b) => b.addEventListener("click", () => setStoryMode(b.dataset.storyType)));
+        $("closeComposer").addEventListener("click", () => $("storyComposer").classList.add("hidden"));
+        $("storyDrop").addEventListener("click", () => $("storyFile").click());
+
+        $("storyFile").addEventListener("change", (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            $("storyError").textContent = "";
+            if (!/^(image\/(png|jpeg|gif|webp)|video\/(mp4|webm|ogg|quicktime))$/.test(file.type)) {
+                $("storyError").textContent = "Choose a photo (png, jpg, gif, webp) or a video (mp4, webm, mov)";
+                return;
+            }
+            if (file.size > MAX_FILE_SIZE) {
+                $("storyError").textContent = "File is too large (max 50 MB)";
+                return;
+            }
+            storyFileChosen = file;
+            const preview = $("storyPreview");
+            preview.innerHTML = "";
+            const el = document.createElement(file.type.startsWith("video/") ? "video" : "img");
+            el.src = URL.createObjectURL(file);
+            if (el.tagName === "VIDEO") { el.muted = true; el.autoplay = true; el.loop = true; el.playsInline = true; }
+            preview.appendChild(el);
+        });
+
+        $("storyForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            $("storyError").textContent = "";
+            const btn = $("storySubmit");
+            const caption = $("storyCaption").value;
+            btn.disabled = true;
+            try {
+                let body;
+                if (storyMode === "media") {
+                    if (!storyFileChosen) throw new Error("Choose a photo or video first");
+                    btn.textContent = "Uploading...";
+                    const uploaded = await uploadFile(storyFileChosen);
+                    body = { type: uploaded.kind, mediaUrl: uploaded.url, caption };
+                } else {
+                    let link = $("storyLink").value.trim();
+                    if (link && !/^https?:\/\//i.test(link)) link = "https://" + link;
+                    body = { type: "link", link, caption };
+                }
+                btn.textContent = "Sharing...";
+                await api("/api/stories", { method: "POST", body: JSON.stringify(body) });
+                $("storyComposer").classList.add("hidden");
+                await loadStories();
+            } catch (err) {
+                $("storyError").textContent = err.message;
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "Share story";
+            }
+        });
+
+        // --- Viewer ---
+        const STORY_DURATION = 6000; // ms for photo and link stories
+        let sv = null; // { group, index, timer, start, paused }
+
+        function linkInfo(href) {
+            let host = "";
+            try { host = new URL(href).hostname.replace(/^www\./, ""); } catch { /* ignore */ }
+            const platforms = [
+                [/instagram\.com$/, "📸", "Instagram"],
+                [/(youtube\.com|youtu\.be)$/, "▶️", "YouTube"],
+                [/tiktok\.com$/, "🎵", "TikTok"],
+                [/(facebook\.com|fb\.com)$/, "📘", "Facebook"],
+                [/(twitter\.com|x\.com)$/, "𝕏", "X (Twitter)"],
+                [/linkedin\.com$/, "💼", "LinkedIn"],
+                [/github\.com$/, "🐙", "GitHub"],
+                [/snapchat\.com$/, "👻", "Snapchat"],
+                [/(t\.me|telegram\.me)$/, "✈️", "Telegram"],
+                [/(wa\.me|whatsapp\.com)$/, "💬", "WhatsApp"],
+            ];
+            const hit = platforms.find(([re]) => re.test(host));
+            return { icon: hit ? hit[1] : "🔗", name: hit ? hit[2] : "Website", host };
+        }
+
+        function openStoryViewer(groupIndex, storyIndex) {
+            closeEmoji();
+            sv = { group: groupIndex, index: storyIndex };
+            $("storyViewer").classList.remove("hidden");
+            showStory();
+        }
+
+        function closeStoryViewer() {
+            if (!sv) return;
+            stopStoryTimer();
+            sv = null;
+            $("storyViewer").classList.add("hidden");
+            $("storyStage").innerHTML = ""; // stops videos
+            renderStoriesBar();
+            loadStories().catch(console.error); // pick up anything posted while watching
+        }
+
+        function stopStoryTimer() {
+            if (sv?.timer) cancelAnimationFrame(sv.timer);
+            if (sv) sv.timer = null;
+        }
+
+        function showStory() {
+            stopStoryTimer();
+            const group = storyGroups[sv.group];
+            const story = group?.stories[sv.index];
+            if (!story) return closeStoryViewer();
+            const mine = isMe(group.user);
+
+            const stage = $("storyStage");
+            stage.innerHTML = "";
+
+            // Progress bars
+            const progress = document.createElement("div");
+            progress.className = "story-progress";
+            group.stories.forEach((_, i) => {
+                const bar = document.createElement("div");
+                const fill = document.createElement("i");
+                fill.style.width = i < sv.index ? "100%" : "0";
+                bar.appendChild(fill);
+                progress.appendChild(bar);
+            });
+            const fill = progress.children[sv.index].firstChild;
+
+            // Header
+            const head = document.createElement("div");
+            head.className = "story-head";
+            const av = document.createElement("div");
+            av.className = "avatar";
+            paintAvatar(av, group.user);
+            const who = document.createElement("div");
+            const nm = document.createElement("strong");
+            nm.textContent = mine ? "My story" : userName(group.user);
+            const when = document.createElement("small");
+            when.textContent = timeAgo(story.createdAt);
+            who.append(nm, when);
+            head.append(av, who);
+
+            stage.append(progress, head);
+
+            // Content
+            let video = null;
+            if (story.type === "image") {
+                const img = document.createElement("img");
+                img.src = fileUrl(story.mediaUrl);
+                img.alt = "";
+                stage.appendChild(img);
+            } else if (story.type === "video") {
+                video = document.createElement("video");
+                video.src = fileUrl(story.mediaUrl);
+                video.autoplay = true;
+                video.playsInline = true;
+                video.controls = false;
+                stage.appendChild(video);
+            } else {
+                const info = linkInfo(story.link);
+                const card = document.createElement("div");
+                card.className = "link-card";
+                card.innerHTML = `<div class="platform"></div><h4></h4><p></p>`;
+                card.querySelector(".platform").textContent = info.icon;
+                card.querySelector("h4").textContent = info.name;
+                card.querySelector("p").textContent = story.link;
+                const a = document.createElement("a");
+                a.href = story.link; // validated as http(s) by the server
+                a.target = "_blank";
+                a.rel = "noopener noreferrer";
+                a.textContent = "Open link ↗";
+                a.addEventListener("click", stopStoryTimer); // pause while they visit it
+                card.appendChild(a);
+                stage.appendChild(card);
+            }
+
+            if (story.caption) {
+                const cap = document.createElement("div");
+                cap.className = "story-caption";
+                cap.textContent = story.caption;
+                stage.appendChild(cap);
+            }
+
+            // Tap zones
+            const prev = document.createElement("div");
+            prev.className = "story-tap prev";
+            prev.addEventListener("click", prevStory);
+            const next = document.createElement("div");
+            next.className = "story-tap next";
+            next.addEventListener("click", nextStory);
+            stage.append(prev, next);
+
+            // Footer: views + delete for my stories
+            if (mine) {
+                const foot = document.createElement("div");
+                foot.className = "story-foot";
+                const views = document.createElement("button");
+                views.type = "button";
+                views.id = "storyViewsBtn";
+                views.textContent = `👁 ${story.viewCount} view${story.viewCount === 1 ? "" : "s"}`;
+                views.addEventListener("click", () => toggleViewers(story));
+                const add = document.createElement("button");
+                add.type = "button";
+                add.textContent = "＋ Add";
+                add.addEventListener("click", () => { closeStoryViewer(); openStoryComposer(); });
+                const del = document.createElement("button");
+                del.type = "button";
+                del.textContent = "🗑 Delete";
+                del.addEventListener("click", () => deleteStory(story));
+                foot.append(views, add, del);
+                stage.appendChild(foot);
+            } else if (!story.seen) {
+                story.seen = true;
+                group.allSeen = group.stories.every((st) => st.seen);
+                api(`/api/stories/${story._id}/view`, { method: "POST" }).catch(() => {});
+            }
+
+            // Timer: videos follow their own playback; photos/links use a fixed duration
+            if (video) {
+                video.addEventListener("timeupdate", () => {
+                    if (video.duration) fill.style.width = (video.currentTime / video.duration) * 100 + "%";
+                });
+                video.addEventListener("ended", nextStory);
+                video.addEventListener("error", () => runTimer(fill));
+            } else {
+                runTimer(fill);
+            }
+        }
+
+        function runTimer(fill) {
+            const start = performance.now();
+            const tick = (now) => {
+                if (!sv) return;
+                const pct = Math.min(1, (now - start) / STORY_DURATION);
+                fill.style.width = pct * 100 + "%";
+                if (pct >= 1) return nextStory();
+                sv.timer = requestAnimationFrame(tick);
+            };
+            sv.timer = requestAnimationFrame(tick);
+        }
+
+        function nextStory() {
+            if (!sv) return;
+            const group = storyGroups[sv.group];
+            if (sv.index < group.stories.length - 1) {
+                sv.index++;
+                return showStory();
+            }
+            // Next person's stories (skip mine)
+            const nextGroup = storyGroups.findIndex((g, i) => i > sv.group && !isMe(g.user));
+            if (nextGroup !== -1) {
+                sv.group = nextGroup;
+                sv.index = 0;
+                return showStory();
+            }
+            closeStoryViewer();
+        }
+
+        function prevStory() {
+            if (!sv) return;
+            if (sv.index > 0) sv.index--;
+            showStory();
+        }
+
+        function toggleViewers(story) {
+            const stage = $("storyStage");
+            const existing = stage.querySelector(".story-viewers");
+            if (existing) {
+                existing.remove();
+                runTimer(stage.querySelector(".story-progress").children[sv.index].firstChild);
+                return;
+            }
+            stopStoryTimer(); // pause while the list is open
+            const box = document.createElement("div");
+            box.className = "story-viewers";
+            const viewers = story.viewers || [];
+            if (viewers.length === 0) {
+                box.innerHTML = `<div class="row">No views yet</div>`;
+            }
+            viewers.forEach((v) => {
+                if (!v.user) return;
+                const row = document.createElement("div");
+                row.className = "row";
+                const av = document.createElement("div");
+                av.className = "avatar";
+                paintAvatar(av, v.user);
+                const name = document.createElement("div");
+                name.style.flex = "1";
+                name.textContent = userName(v.user);
+                const when = document.createElement("small");
+                when.style.color = "var(--muted)";
+                when.textContent = timeAgo(v.viewedAt);
+                row.append(av, name, when);
+                box.appendChild(row);
+            });
+            stage.appendChild(box);
+        }
+
+        async function deleteStory(story) {
+            if (!confirm("Delete this story?")) return;
+            try {
+                await api(`/api/stories/${story._id}`, { method: "DELETE" });
+                closeStoryViewer();
+                await loadStories();
+            } catch (err) {
+                alert(err.message);
+            }
+        }
+
+        $("closeStory").addEventListener("click", closeStoryViewer);
+
+        // Keyboard: Esc closes overlays, arrows move between stories
+        document.addEventListener("keydown", (e) => {
+            if (sv) {
+                if (e.key === "Escape") closeStoryViewer();
+                if (e.key === "ArrowRight") nextStory();
+                if (e.key === "ArrowLeft") prevStory();
+                return;
+            }
+            if (e.key === "Escape") {
+                closeFileViewer();
+                closeEmoji();
+                $("storyComposer").classList.add("hidden");
+            }
+        });
 
         function joinRoom(roomId) {
             if (!socket?.connected) {
@@ -1417,7 +2349,7 @@
         function pickFile(file) {
             if (!file || !currentRoomId || uploading) return;
             if (file.size > MAX_FILE_SIZE) {
-                showInfo(`"${file.name}" is too large (max 10 MB)`, true);
+                showInfo(`"${file.name}" is too large (max 50 MB)`, true);
                 return;
             }
             cancelEdit();
@@ -1427,6 +2359,7 @@
             if (thumb.src) URL.revokeObjectURL(thumb.src);
             thumb.classList.toggle("hidden", !isImage);
             $("attachIcon").classList.toggle("hidden", isImage);
+            $("attachIcon").textContent = file.type.startsWith("video/") ? "🎬" : file.type.startsWith("audio/") ? "🎵" : "📄";
             if (isImage) thumb.src = URL.createObjectURL(file);
             $("attachName").textContent = file.name;
             $("attachSize").textContent = formatSize(file.size);
@@ -1643,7 +2576,7 @@
             if (!file) return;
             $("avatarError").textContent = "";
             if (file.size > MAX_FILE_SIZE) {
-                $("avatarError").textContent = "Image is too large (max 10 MB)";
+                $("avatarError").textContent = "Image is too large (max 50 MB)";
                 return;
             }
             $("changeAvatar").disabled = true;
@@ -1764,6 +2697,26 @@
                 fillMessage(el, msg);
             });
 
+            // ----- Stories (live) -----
+            socket.on("story-added", ({ userId }) => {
+                if (!sv) loadStories().catch(console.error);
+            });
+            socket.on("story-deleted", () => {
+                if (!sv) loadStories().catch(console.error);
+            });
+            socket.on("story-viewed", ({ storyId, viewCount }) => {
+                // Someone viewed one of my stories
+                if (!sv) return loadStories().catch(console.error);
+                // Viewer is open: only update the counter (reloading could reorder the stories)
+                const story = storyGroups.flatMap((g) => g.stories).find((st) => String(st._id) === String(storyId));
+                if (story) story.viewCount = viewCount;
+                const current = storyGroups[sv.group]?.stories[sv.index];
+                const btn = document.getElementById("storyViewsBtn");
+                if (btn && current && String(current._id) === String(storyId)) {
+                    btn.textContent = `👁 ${viewCount} view${viewCount === 1 ? "" : "s"}`;
+                }
+            });
+
             // A user changed their profile (name, photo, about)
             socket.on("user-updated", (profile) => {
                 if (String(profile._id) === String(currentUser?._id)) {
@@ -1777,6 +2730,7 @@
                 else users.push({ ...profile, online: true });
                 renderUsers();
                 renderChatHeader();
+                renderStoriesBar();
             });
 
             // ----- Typing -----

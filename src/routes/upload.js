@@ -11,16 +11,29 @@ const router = express.Router();
 const UPLOAD_DIR = path.join(__dirname, '..', '..', 'uploads');
 fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 
-const MAX_SIZE = 10 * 1024 * 1024; // 10 MB
+const MAX_SIZE = 50 * 1024 * 1024; // 50 MB (videos)
 
-// Only these are shown inline as images. Everything else (including SVG/HTML) is
-// served as a download, so an uploaded file can never run scripts on our origin.
-const IMAGE_TYPES = {
-  '.png': 'image/png',
-  '.jpg': 'image/jpeg',
-  '.jpeg': 'image/jpeg',
-  '.gif': 'image/gif',
-  '.webp': 'image/webp',
+// Only these types are served inline (shown/played in the page). Everything else
+// (including SVG/HTML) is served as a download, so an uploaded file can never run
+// scripts on our origin.
+const MEDIA_TYPES = {
+  // images
+  '.png': { mime: 'image/png', kind: 'image' },
+  '.jpg': { mime: 'image/jpeg', kind: 'image' },
+  '.jpeg': { mime: 'image/jpeg', kind: 'image' },
+  '.gif': { mime: 'image/gif', kind: 'image' },
+  '.webp': { mime: 'image/webp', kind: 'image' },
+  // videos
+  '.mp4': { mime: 'video/mp4', kind: 'video' },
+  '.webm': { mime: 'video/webm', kind: 'video' },
+  '.ogv': { mime: 'video/ogg', kind: 'video' },
+  '.mov': { mime: 'video/quicktime', kind: 'video' },
+  // audio
+  '.mp3': { mime: 'audio/mpeg', kind: 'audio' },
+  '.wav': { mime: 'audio/wav', kind: 'audio' },
+  '.m4a': { mime: 'audio/mp4', kind: 'audio' },
+  '.ogg': { mime: 'audio/ogg', kind: 'audio' },
+  '.oga': { mime: 'audio/ogg', kind: 'audio' },
 };
 
 // Public URLs look like /uploads/<32 hex chars>.<ext>
@@ -39,7 +52,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage, limits: { fileSize: MAX_SIZE, files: 1 } });
 
 // Build attachment info from a stored file. Used both after upload and to
-// validate attachments sent with messages (never trust the client's metadata).
+// validate attachments sent with messages/stories (never trust client metadata).
 function describeUpload(url, originalName) {
   const match = UPLOAD_URL_RE.exec(url || '');
   if (!match) return null;
@@ -47,17 +60,19 @@ function describeUpload(url, originalName) {
   if (!fs.existsSync(filePath)) return null;
 
   const ext = path.extname(filePath).toLowerCase();
+  const media = MEDIA_TYPES[ext];
   const name = String(originalName || match[1]).replace(/[\r\n"]/g, '').slice(0, 200) || match[1];
   return {
     url,
     name,
-    mimeType: IMAGE_TYPES[ext] || 'application/octet-stream',
+    mimeType: media?.mime || 'application/octet-stream',
     size: fs.statSync(filePath).size,
-    isImage: Boolean(IMAGE_TYPES[ext]),
+    kind: media?.kind || 'file', // image | video | audio | file
+    isImage: media?.kind === 'image',
   };
 }
 
-// Delete a stored file (e.g. when its message is deleted)
+// Delete a stored file (e.g. when its message or story is deleted)
 function removeUpload(url) {
   const match = UPLOAD_URL_RE.exec(url || '');
   if (!match) return;
@@ -69,7 +84,7 @@ function removeUpload(url) {
 router.post('/', auth, (req, res) => {
   upload.single('file')(req, res, (err) => {
     if (err) {
-      const message = err.code === 'LIMIT_FILE_SIZE' ? 'File is too large (max 10 MB)' : err.message;
+      const message = err.code === 'LIMIT_FILE_SIZE' ? 'File is too large (max 50 MB)' : err.message;
       return res.status(400).json({ error: message });
     }
     if (!req.file) {
@@ -81,12 +96,15 @@ router.post('/', auth, (req, res) => {
   });
 });
 
-// Static serving with safe headers
+// Static serving with safe headers (express.static handles video range requests)
 function serveUploads() {
   return express.static(UPLOAD_DIR, {
     setHeaders: (res, filePath) => {
       res.setHeader('X-Content-Type-Options', 'nosniff');
-      if (!IMAGE_TYPES[path.extname(filePath).toLowerCase()]) {
+      const media = MEDIA_TYPES[path.extname(filePath).toLowerCase()];
+      if (media) {
+        res.setHeader('Content-Type', media.mime);
+      } else {
         res.setHeader('Content-Type', 'application/octet-stream');
         res.setHeader('Content-Disposition', 'attachment');
       }

@@ -12,6 +12,7 @@ const cors = require('cors');
 const authRoutes = require('./routes/auth');
 const roomRoutes = require('./routes/rooms');
 const userRoutes = require('./routes/users');
+const storyRoutes = require('./routes/stories');
 const { router: uploadRoutes, serveUploads, describeUpload, removeUpload } = require('./routes/upload');
 
 const app = express();
@@ -39,6 +40,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/rooms', roomRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/stories', storyRoutes);
 
 // الملفات المرفوعة
 app.use('/uploads', serveUploads());
