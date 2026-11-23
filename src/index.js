@@ -1,6 +1,7 @@
 require('dotenv').config();
 const http = require('http');
 const path = require('path');
+const fs = require('fs');
 const express = require('express');
 const {Server} = require('socket.io');
 const mongoose = require('mongoose');
@@ -33,8 +34,8 @@ mongoose.connect(process.env.MONGO_URI)
 app.use(cors());
 app.use(express.json());
 
-// Serve the frontend: http://localhost:3000/client.html
-app.use(express.static(path.join(__dirname, '..', 'frontend')));
+// Legacy single-file client: http://localhost:3000/client.html
+app.use(express.static(path.join(__dirname, '..', 'frontend'), { index: false }));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/rooms', roomRoutes);
@@ -45,12 +46,20 @@ app.use('/api/stories', storyRoutes);
 // الملفات المرفوعة
 app.use('/uploads', serveUploads());
 
-app.get('/', (req, res) => {
-  res.send('Hello World!');
-});
-
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok' });
+});
+
+// React + shadcn/ui app (client/), built with `npm run build:client`
+const CLIENT_DIST = path.join(__dirname, '..', 'client', 'dist');
+const CLIENT_INDEX = path.join(CLIENT_DIST, 'index.html');
+app.use(express.static(CLIENT_DIST));
+// Any other GET (not API / uploads) returns the app, so client-side pages load
+app.get(/^\/(?!api\/|uploads\/|socket\.io\/).*/, (req, res, next) => {
+  if (!fs.existsSync(CLIENT_INDEX)) {
+    return res.send('Chat API is running. Build the web app with "npm run build:client", or open /client.html');
+  }
+  res.sendFile(CLIENT_INDEX);
 });
 app.set('io', io);
 

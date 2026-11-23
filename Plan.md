@@ -1,8 +1,10 @@
 # Modern Chat App — Project Plan
 
-A real-time chat app (like WhatsApp) built with **Node.js, Express 5, Socket.IO 4 and MongoDB (Mongoose)**, with a single-page web client in `frontend/client.html`.
+A real-time chat app (like WhatsApp) built with **Node.js, Express 5, Socket.IO 4 and MongoDB (Mongoose)**, with a **React + TypeScript + Tailwind CSS + shadcn/ui** web client in `client/` (built with Vite).
 
-- **Run:** `npm run dev`, then open http://localhost:3000/client.html
+- **Run (development):** `npm run dev` (API on :3000) and `npm run dev:client` (Vite on http://localhost:5173, proxies to the API)
+- **Run (production):** `npm run build:client` once, then `npm start` and open http://localhost:3000
+- **Legacy client:** the old single-file client is still at http://localhost:3000/client.html
 - **Repo:** https://github.com/ALI-ADAM94/Modern-Chat-App (branch `main`)
 - **Config (`.env`, never committed):** `PORT`, `MONGO_URI`, `JWT_SECRET`
 
@@ -42,7 +44,13 @@ A real-time chat app (like WhatsApp) built with **Node.js, Express 5, Socket.IO 
 - [x] Profile changes appear live for other users
 - [x] **Stories**: photo, video or social media link, visible for 24 hours, with seen/unseen rings, a view counter and a viewer list for the owner, and delete
 
-### 🔜 Phase 5: Next ideas
+### ✅ Phase 5: Modern UI (done)
+- [x] New frontend in React + TypeScript + Vite, styled with Tailwind CSS and **shadcn/ui** (Radix) components
+- [x] Light / dark / system theme, Lucide icons, Geist font, toasts (Sonner)
+- [x] Responsive layout: on phones the chat list and chat window switch places
+- [x] App state in a small Zustand store, driven by Socket.IO events
+
+### 🔜 Phase 6: Next ideas
 - [ ] Read receipts (✓✓) and delivered status
 - [ ] Message reactions and replies (quote a message)
 - [ ] Voice notes recorded in the browser
@@ -66,7 +74,12 @@ src/
   controllers/          auth + rooms logic
   routes/               auth, rooms, users, upload, stories
   socket/presence.js    who is online (counts tabs per user)
-frontend/client.html    the whole web client (login, chats, rooms, stories, settings)
+client/                 React + shadcn/ui web app (Vite)
+  src/store/chat.ts     app state + all Socket.IO listeners (Zustand)
+  src/lib/              api helper, types, formatting, emoji data
+  src/components/       Sidebar, chat/, stories/, SettingsDialog, FileViewer, ...
+  src/components/ui/    shadcn/ui components (added with `npx shadcn add ...`)
+frontend/client.html    legacy single-file client
 uploads/                uploaded files (git-ignored)
 ```
 
