@@ -1,5 +1,14 @@
 const mongoose = require('mongoose');
 
+// ملف مرفق (صورة أو ملف)
+const attachmentSchema = new mongoose.Schema({
+    url: { type: String, required: true },
+    name: { type: String, required: true },
+    mimeType: { type: String, required: true },
+    size: { type: Number, required: true },
+    isImage: { type: Boolean, default: false },
+}, { _id: false });
+
 const messageSchema = new mongoose.Schema({
     room :{
         type: mongoose.Schema.Types.ObjectId,
@@ -13,11 +22,32 @@ const messageSchema = new mongoose.Schema({
     },
     text:{
         type: String,
-        required: true,
         trim: true,
-        maxlength: 5000
+        maxlength: 5000,
+        default: ''
+    },
+    attachment:{
+        type: attachmentSchema,
+        default: null
+    },
+    // تعديل الرسالة
+    editedAt:{
+        type: Date,
+        default: null
+    },
+    // حذف الرسالة (يبقى مكانها "تم حذف هذه الرسالة")
+    deleted:{
+        type: Boolean,
+        default: false
     }
 }, {timestamps: true});
+
+// A message needs text or an attachment (unless it was deleted)
+messageSchema.pre('validate', function () {
+    if (!this.deleted && !this.text && !this.attachment) {
+        this.invalidate('text', 'Message text or attachment is required');
+    }
+});
 
 const Message = mongoose.model('Message', messageSchema);
 

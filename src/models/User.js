@@ -30,6 +30,13 @@ const userSchema = new mongoose.Schema({
         type: String,
         default:""
     },
+    // نبذة (مثل "About" في واتساب)
+    about:{
+        type: String,
+        trim: true,
+        maxlength: 140,
+        default: ""
+    },
     // آخر ظهور
     lastSeen:{
         type: Date,

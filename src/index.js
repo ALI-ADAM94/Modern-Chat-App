@@ -12,6 +12,7 @@ const cors = require('cors');
 const authRoutes = require('./routes/auth');
 const roomRoutes = require('./routes/rooms');
 const userRoutes = require('./routes/users');
+const { router: uploadRoutes, serveUploads, describeUpload, removeUpload } = require('./routes/upload');
 
 const app = express();
 const server = http.createServer(app)
@@ -37,6 +38,10 @@ app.use(express.static(path.join(__dirname, '..', 'frontend')));
 app.use('/api/auth', authRoutes);
 app.use('/api/rooms', roomRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/upload', uploadRoutes);
+
+// الملفات المرفوعة
+app.use('/uploads', serveUploads());
 
 app.get('/', (req, res) => {
   res.send('Hello World!');
@@ -58,6 +63,16 @@ async function getDirectMembers(roomId) {
   directRoomMembers.set(roomId, members);
   return members;
 }
+
+// Send an event to everyone viewing the room, plus both people of a direct chat
+async function emitToRoom(roomId, event, payload) {
+  const members = await getDirectMembers(roomId);
+  let target = io.to(roomId);
+  if (members) target = target.to(members.map((m) => 'user:' + m));
+  target.emit(event, payload);
+}
+
+const MESSAGE_USER_FIELDS = 'username displayName avatar';
 
 // التحقق من التوكين قبل قبول الاتصال
 // The client sends the token in `auth: { token }` (or `?token=` in the query).
@@ -138,11 +153,23 @@ io.on('connection', (socket)=>{
     socket.leave(roomId);
   })
 
-  // ارسال رسالة
+  // ارسال رسالة (نص و/او ملف)
   socket.on('send-message', async (data) => {
-    const { roomId, text } = data || {};
-    if(!roomId || !text?.trim()){
-      socket.emit('error', 'Room ID and message text are required');
+    const { roomId } = data || {};
+    const text = typeof data?.text === 'string' ? data.text.trim() : '';
+
+    // Never trust attachment metadata from the client: rebuild it from the stored file
+    let attachment = null;
+    if (data?.attachment) {
+      attachment = describeUpload(data.attachment.url, data.attachment.name);
+      if (!attachment) {
+        socket.emit('error', 'Invalid attachment');
+        return;
+      }
+    }
+
+    if(!roomId || (!text && !attachment)){
+      socket.emit('error', 'Room ID and message text or a file are required');
       return;
     }
     if(!socket.rooms.has(roomId)){
@@ -153,23 +180,73 @@ io.on('connection', (socket)=>{
     try {
       const message = await Message.create({
         room: roomId,
-        user: socket.data.userId,
-        text: text.trim(),
+        user: userId,
+        text,
+        attachment,
       })
 
       const populated = await Message.findById(message._id)
-      .populate('user', 'username displayName')
+      .populate('user', MESSAGE_USER_FIELDS)
       .lean();
 
-      // In a direct chat, also deliver to both users' personal rooms so the
-      // other person gets it (and an unread badge) even if the chat isn't open
-      const members = await getDirectMembers(roomId);
-      let target = io.to(roomId);
-      if (members) target = target.to(members.map((m) => 'user:' + m));
-      target.emit('new-message', populated);
+      // In a direct chat this also reaches the other person's personal room,
+      // so they get it (and an unread badge) even if the chat isn't open
+      await emitToRoom(roomId, 'new-message', populated);
     } catch (error) {
       console.error('Error sending message:', error);
       socket.emit('error', 'Error occurred while sending message: ' + error.message);
+    }
+  })
+
+  // Load a message and make sure the current user wrote it
+  async function findOwnMessage(messageId) {
+    if (!mongoose.isValidObjectId(messageId)) throw new Error('Invalid message ID');
+    const message = await Message.findById(messageId);
+    if (!message) throw new Error('Message not found');
+    if (message.user.toString() !== userId) throw new Error('You can only change your own messages');
+    if (message.deleted) throw new Error('This message was deleted');
+    return message;
+  }
+
+  // تعديل رسالة
+  socket.on('edit-message', async (data) => {
+    const text = typeof data?.text === 'string' ? data.text.trim() : '';
+    try {
+      const message = await findOwnMessage(data?.messageId);
+      if (!text && !message.attachment) throw new Error('Message text is required');
+      if (text === message.text) return;
+
+      message.text = text;
+      message.editedAt = new Date();
+      await message.save();
+
+      await emitToRoom(message.room.toString(), 'message-updated', {
+        _id: message._id,
+        room: message.room,
+        text: message.text,
+        editedAt: message.editedAt,
+      });
+    } catch (error) {
+      socket.emit('error', 'Could not edit message: ' + error.message);
+    }
+  })
+
+  // حذف رسالة (يظهر مكانها "تم حذف هذه الرسالة")
+  socket.on('delete-message', async (data) => {
+    try {
+      const message = await findOwnMessage(data?.messageId);
+      if (message.attachment) removeUpload(message.attachment.url);
+      message.deleted = true;
+      message.text = '';
+      message.attachment = null;
+      await message.save();
+
+      await emitToRoom(message.room.toString(), 'message-deleted', {
+        _id: message._id,
+        room: message.room,
+      });
+    } catch (error) {
+      socket.emit('error', 'Could not delete message: ' + error.message);
     }
   })
 

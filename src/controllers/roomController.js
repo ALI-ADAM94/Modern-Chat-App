@@ -80,7 +80,7 @@ const getRoomMessages = async(req, res) =>{
         .sort({createdAt: -1})
         .skip(skip)
         .limit(limit)
-        .populate('user', 'username displayName')
+        .populate('user', 'username displayName avatar')
         .lean();
 
         res.json(messages);

@@ -32,7 +32,7 @@
 
         input, select, textarea, button { font: inherit; }
 
-        input[type="text"], input[type="email"], input[type="password"] {
+        input[type="text"], input[type="email"], input[type="password"], input[type="search"] {
             width: 100%;
             padding: 11px 13px;
             border: 1px solid #cbd5e1;
@@ -324,6 +324,173 @@
         .chat-header-info { display: flex; align-items: center; gap: 12px; min-width: 0; }
         #roomDesc.online, #roomDesc.typing { color: var(--success); }
 
+        /* ---------- Message actions (edit / delete) ---------- */
+        .message { position: relative; }
+        .message .edited { font-style: italic; margin-right: 4px; }
+        .message.deleted { font-style: italic; opacity: .7; }
+
+        .msg-actions {
+            position: absolute;
+            top: -12px;
+            right: 8px;
+            display: none;
+            gap: 2px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 2px;
+            box-shadow: 0 2px 6px rgba(0,0,0,.1);
+        }
+
+        .message:hover .msg-actions { display: flex; }
+        .msg-actions button { background: none; padding: 3px 6px; font-size: 13px; border-radius: 6px; color: var(--text); }
+        .msg-actions button:hover { background: #f1f5f9; }
+
+        /* ---------- Attachments ---------- */
+        .attachment-img {
+            display: block;
+            max-width: 260px;
+            max-height: 260px;
+            border-radius: 10px;
+            margin-bottom: 4px;
+            cursor: zoom-in;
+        }
+
+        .attachment-file {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 10px;
+            border-radius: 10px;
+            background: rgba(0,0,0,.06);
+            color: inherit;
+            text-decoration: none;
+            margin-bottom: 4px;
+        }
+
+        .message.sent .attachment-file { background: rgba(255,255,255,.18); }
+        .attachment-file .icon { font-size: 26px; }
+        .attachment-file small { margin: 0; text-align: left; }
+
+        .compose-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 20px;
+            background: #eff6ff;
+            border-top: 1px solid var(--border);
+            font-size: 13px;
+        }
+
+        .compose-bar img { width: 42px; height: 42px; object-fit: cover; border-radius: 6px; }
+        .compose-bar .grow { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+        .icon-btn {
+            background: none;
+            color: var(--muted);
+            font-size: 20px;
+            padding: 6px 10px;
+        }
+
+        .icon-btn:hover { background: #f1f5f9; color: var(--text); }
+        .icon-btn:disabled { background: none; opacity: .4; }
+
+        #messages.drag-over { outline: 3px dashed var(--primary); outline-offset: -10px; }
+
+        .avatar.has-img { background-size: cover !important; background-position: center !important; color: transparent; }
+        .sidebar-header .me, .sidebar-header #myAvatar { cursor: pointer; }
+
+        /* ---------- Settings dashboard ---------- */
+        .settings-overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--bg);
+            z-index: 50;
+            overflow-y: auto;
+        }
+
+        .settings-top {
+            position: sticky;
+            top: 0;
+            background: var(--primary);
+            color: white;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            z-index: 1;
+        }
+
+        .settings-top h2 { margin: 0; font-size: 19px; flex: 1; }
+        .settings-top button { background: rgba(255,255,255,.15); }
+        .settings-top button:hover { background: rgba(255,255,255,.28); }
+
+        .settings-grid {
+            max-width: 980px;
+            margin: 24px auto;
+            padding: 0 16px;
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+            align-items: start;
+        }
+
+        .card {
+            background: white;
+            border-radius: 14px;
+            box-shadow: 0 2px 10px rgba(0,0,0,.05);
+            padding: 22px;
+        }
+
+        .card h3 { margin: 0 0 16px; font-size: 16px; }
+        .card + .card { margin-top: 20px; }
+        .card form { display: flex; flex-direction: column; gap: 10px; }
+        .card label { font-size: 13px; font-weight: 600; margin-bottom: -4px; }
+        .card .hint { font-size: 12px; color: var(--muted); margin: -4px 0 0; }
+        .card textarea {
+            width: 100%;
+            padding: 11px 13px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            resize: vertical;
+            min-height: 70px;
+        }
+
+        .profile-card { text-align: center; }
+
+        .profile-card .avatar {
+            width: 120px;
+            height: 120px;
+            font-size: 46px;
+            margin: 0 auto 14px;
+        }
+
+        .profile-card h3 { margin: 0 0 4px; font-size: 20px; }
+        .profile-card .muted { color: var(--muted); font-size: 13px; margin: 0 0 4px; }
+        .profile-card .about { margin: 12px 0; font-style: italic; color: var(--text); font-size: 14px; }
+        .profile-card .buttons { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 12px; }
+        .btn-secondary { background: #e2e8f0; color: var(--text); }
+        .btn-secondary:hover { background: #cbd5e1; }
+        .btn-danger { background: var(--danger); }
+        .btn-danger:hover { background: #b91c1c; }
+
+        .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 16px; }
+        .stat { background: #f8fafc; border-radius: 10px; padding: 10px 6px; }
+        .stat strong { display: block; font-size: 18px; }
+        .stat span { font-size: 11px; color: var(--muted); }
+
+        .info-row { display: flex; justify-content: space-between; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+        .info-row:last-child { border-bottom: none; }
+        .info-row span:first-child { color: var(--muted); }
+        .info-row span:last-child { text-align: right; overflow-wrap: anywhere; }
+
+        .search-count { font-size: 11px; color: var(--muted); padding: 2px 16px 0; min-height: 14px; }
+        mark { background: #fef08a; color: inherit; border-radius: 2px; padding: 0 1px; }
+
+        @media (max-width: 800px) {
+            .settings-grid { grid-template-columns: 1fr; }
+        }
+
         @media (max-width: 700px) {
             .app { flex-direction: column; }
             .sidebar { width: 100%; max-height: 45%; border-right: none; border-bottom: 1px solid var(--border); }
@@ -384,6 +551,7 @@
                     <strong id="myName"></strong>
                     <span id="myEmail"></span>
                 </div>
+                <button class="ghost" id="settingsButton" title="Account settings">⚙️</button>
                 <button class="ghost" id="logoutButton" title="Log out">Log out</button>
             </div>
 
@@ -395,8 +563,9 @@
             <!-- Chats tab: everyone, with live Online / last seen -->
             <div class="tab-panel" id="chatsPanel">
                 <div class="search">
-                    <input type="text" id="userSearch" placeholder="🔍 Search users" autocomplete="off">
+                    <input type="search" id="userSearch" placeholder="🔍 Search by name, username or about" autocomplete="off">
                 </div>
+                <div class="search-count" id="userSearchCount"></div>
                 <ul class="room-list contact-list" id="userList"></ul>
             </div>
 
@@ -415,6 +584,9 @@
                     <button type="submit">Create room</button>
                 </form>
 
+                <div class="search">
+                    <input type="search" id="roomSearch" placeholder="🔍 Search rooms" autocomplete="off">
+                </div>
                 <ul class="room-list" id="roomList"></ul>
             </div>
         </aside>
@@ -440,11 +612,109 @@
             </div>
             <div id="typing"></div>
 
+            <!-- Shown while editing a message -->
+            <div class="compose-bar hidden" id="editBar">
+                <span>✏️</span>
+                <div class="grow"><strong>Editing message</strong> — <span id="editPreview"></span></div>
+                <button type="button" class="ghost" id="cancelEdit" title="Cancel (Esc)">✕</button>
+            </div>
+
+            <!-- Shown when a file is picked -->
+            <div class="compose-bar hidden" id="attachBar">
+                <img id="attachThumb" alt="" class="hidden">
+                <span id="attachIcon">📄</span>
+                <div class="grow"><strong id="attachName"></strong> <span id="attachSize"></span></div>
+                <button type="button" class="ghost" id="cancelAttach" title="Remove file">✕</button>
+            </div>
+
             <form class="chat-input" id="chatForm">
+                <input type="file" id="fileInput" class="hidden">
+                <button type="button" class="icon-btn" id="attachButton" title="Attach file or image (max 10 MB)" disabled>📎</button>
                 <input type="text" id="messageInput" placeholder="Select a chat first..." autocomplete="off" disabled>
                 <button type="submit" id="sendButton" disabled>Send</button>
             </form>
         </main>
+    </div>
+
+    <!-- ================= Settings dashboard ================= -->
+    <div class="settings-overlay hidden" id="settingsPage">
+        <div class="settings-top">
+            <h2>⚙️ Account settings</h2>
+            <button type="button" id="closeSettings">← Back to chats</button>
+        </div>
+
+        <div class="settings-grid">
+            <!-- Left: profile overview -->
+            <div>
+                <div class="card profile-card">
+                    <div class="avatar" id="setAvatar"></div>
+                    <h3 id="setName"></h3>
+                    <p class="muted" id="setUsername"></p>
+                    <p class="about" id="setAbout"></p>
+                    <div class="buttons">
+                        <input type="file" id="avatarInput" accept="image/png,image/jpeg,image/gif,image/webp" class="hidden">
+                        <button type="button" id="changeAvatar">📷 Change photo</button>
+                        <button type="button" class="btn-secondary" id="removeAvatar">Remove</button>
+                    </div>
+                    <p class="error" id="avatarError"></p>
+                    <div class="stats">
+                        <div class="stat"><strong id="statOnline">0</strong><span>Online now</span></div>
+                        <div class="stat"><strong id="statUsers">0</strong><span>Users</span></div>
+                        <div class="stat"><strong id="statRooms">0</strong><span>Rooms</span></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Account info</h3>
+                    <div class="info-row"><span>Email</span><span id="infoEmail"></span></div>
+                    <div class="info-row"><span>Member since</span><span id="infoSince"></span></div>
+                    <div class="info-row"><span>Last updated</span><span id="infoUpdated"></span></div>
+                    <div class="info-row"><span>Status</span><span id="infoStatus"></span></div>
+                </div>
+            </div>
+
+            <!-- Right: forms -->
+            <div>
+                <div class="card">
+                    <h3>Profile</h3>
+                    <form id="profileForm">
+                        <label for="pfDisplayName">Display name</label>
+                        <input type="text" id="pfDisplayName" maxlength="50" placeholder="Shown to other users">
+                        <label for="pfUsername">Username</label>
+                        <input type="text" id="pfUsername" minlength="3" required>
+                        <label for="pfEmail">Email</label>
+                        <input type="email" id="pfEmail" required>
+                        <label for="pfAbout">About</label>
+                        <textarea id="pfAbout" maxlength="140" placeholder="Hey there! I am using Chat App."></textarea>
+                        <p class="hint"><span id="aboutCount">0</span>/140</p>
+                        <p class="error" id="profileError"></p>
+                        <p class="success" id="profileSuccess"></p>
+                        <button type="submit">Save changes</button>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <h3>Change password</h3>
+                    <form id="passwordForm">
+                        <label for="pwCurrent">Current password</label>
+                        <input type="password" id="pwCurrent" required autocomplete="current-password">
+                        <label for="pwNew">New password</label>
+                        <input type="password" id="pwNew" required minlength="6" autocomplete="new-password">
+                        <label for="pwConfirm">Confirm new password</label>
+                        <input type="password" id="pwConfirm" required minlength="6" autocomplete="new-password">
+                        <p class="error" id="passwordError"></p>
+                        <p class="success" id="passwordSuccess"></p>
+                        <button type="submit">Update password</button>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <h3>Session</h3>
+                    <p class="hint" style="margin:0 0 12px">Log out of this browser. You can log back in at any time.</p>
+                    <button type="button" class="btn-danger" id="settingsLogout">Log out</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
@@ -475,6 +745,11 @@
         const unread = new Map();             // userId -> unread count
         const typingToMe = new Set();         // userIds typing in a direct chat with me
         let currentRoomId = null;
+        let editingId = null;
+        const messageCache = new Map();       // messageId -> message (for live edit/delete)                 // message being edited
+        let pendingFile = null;               // file picked for the next message
+        let uploading = false;                // true while a file is being uploaded
+        const MAX_FILE_SIZE = 10 * 1024 * 1024;
         let typingTimer = null;
         let isTyping = false;
         const typingUsers = new Map();
@@ -585,6 +860,7 @@
             localStorage.removeItem("token");
             localStorage.removeItem("user");
             resetChatBox();
+            closeSettings();
             showPage("login");
             $("loginError").textContent = message;
         }
@@ -592,11 +868,29 @@
         $("logoutButton").addEventListener("click", () => logout());
 
         // ---------- Chat page ----------
+        // Absolute URL for uploads (avatars, attachments)
+        const fileUrl = (url) => (/^https?:/.test(url) ? url : API_URL + url);
+
+        // Fill an avatar element: photo if the user has one, otherwise the initial
+        function paintAvatar(el, user) {
+            const name = userName(user);
+            el.style.background = colorFor(user._id);
+            el.classList.toggle("has-img", Boolean(user.avatar));
+            if (user.avatar) el.style.backgroundImage = `url("${fileUrl(user.avatar)}")`;
+            // Keep the online dot (if any) when replacing the text
+            const dot = el.querySelector(".dot");
+            el.textContent = name[0].toUpperCase();
+            if (dot) el.appendChild(dot);
+        }
+
+        function renderMe() {
+            $("myName").textContent = userName(currentUser);
+            $("myEmail").textContent = currentUser.about || currentUser.email;
+            paintAvatar($("myAvatar"), currentUser);
+        }
+
         async function startChat() {
-            const name = currentUser.displayName || currentUser.username;
-            $("myName").textContent = name;
-            $("myEmail").textContent = currentUser.email;
-            $("myAvatar").textContent = name[0].toUpperCase();
+            renderMe();
 
             showPage("chat");
             try {
@@ -656,8 +950,7 @@
         function makeAvatar(user) {
             const avatar = document.createElement("div");
             avatar.className = "avatar";
-            avatar.style.background = colorFor(user._id);
-            avatar.textContent = userName(user)[0].toUpperCase();
+            paintAvatar(avatar, user);
             const dot = document.createElement("span");
             dot.className = "dot" + (user.online ? " online" : "");
             avatar.appendChild(dot);
@@ -670,12 +963,13 @@
             list.innerHTML = "";
 
             const shown = users
-                .filter((u) => !query || userName(u).toLowerCase().includes(query) || u.username.toLowerCase().includes(query))
+                .filter((u) => !query || [userName(u), u.username, u.about || ""].some((v) => v.toLowerCase().includes(query)))
                 // Online first, then alphabetical
                 .sort((a, b) => (b.online - a.online) || userName(a).localeCompare(userName(b)));
 
+            $("userSearchCount").textContent = query ? `${shown.length} of ${users.length} users` : "";
             if (shown.length === 0) {
-                list.innerHTML = `<li class="empty">${users.length ? "No matches" : "No other users yet"}</li>`;
+                list.innerHTML = `<li class="empty">${users.length ? `No users match "${escapeHtml(query)}"` : "No other users yet"}</li>`;
                 return;
             }
 
@@ -688,7 +982,13 @@
                 const info = document.createElement("div");
                 info.className = "info-col";
                 const name = document.createElement("strong");
-                name.textContent = userName(user);
+                highlight(name, userName(user), query);
+                if (user.displayName && query && user.username.toLowerCase().includes(query)) {
+                    const handle = document.createElement("small");
+                    handle.style.cssText = "font-weight:normal;color:var(--muted)";
+                    highlight(handle, " @" + user.username, query);
+                    name.appendChild(handle);
+                }
                 const status = statusOf(user);
                 const sub = document.createElement("span");
                 sub.className = "status-text " + status.cls;
@@ -711,6 +1011,29 @@
         }
 
         $("userSearch").addEventListener("input", renderUsers);
+        $("roomSearch").addEventListener("input", () => renderRooms());
+
+        function escapeHtml(text) {
+            const div = document.createElement("div");
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Put `text` into `el`, wrapping matches of `query` in <mark> (safe: no innerHTML of user data)
+        function highlight(el, text, query) {
+            if (!query) { el.append(text); return; }
+            const lower = text.toLowerCase();
+            let i = 0;
+            let at;
+            while ((at = lower.indexOf(query, i)) !== -1) {
+                el.append(text.slice(i, at));
+                const m = document.createElement("mark");
+                m.textContent = text.slice(at, at + query.length);
+                el.appendChild(m);
+                i = at + query.length;
+            }
+            el.append(text.slice(i));
+        }
 
         async function openDirectChat(userId) {
             try {
@@ -784,7 +1107,13 @@
                 list.innerHTML = `<li class="empty">No rooms yet. Create one with "+ New".</li>`;
                 return;
             }
-            rooms.forEach((room) => {
+            const query = ($("roomSearch")?.value || "").trim().toLowerCase();
+            const shownRooms = rooms.filter((r) => !query || r.name.toLowerCase().includes(query) || (r.description || "").toLowerCase().includes(query));
+            if (shownRooms.length === 0) {
+                list.innerHTML = `<li class="empty">No rooms match "${escapeHtml(query)}"</li>`;
+                return;
+            }
+            shownRooms.forEach((room) => {
                 const li = document.createElement("li");
                 li.dataset.id = room._id;
                 li.classList.toggle("active", room._id === currentRoomId);
@@ -832,6 +1161,8 @@
         function setChatEnabled(enabled) {
             $("messageInput").disabled = !enabled;
             $("sendButton").disabled = !enabled;
+            $("attachButton").disabled = !enabled;
+            if (!enabled) { cancelEdit(); clearAttachment(); }
             $("messageInput").placeholder = enabled ? "Type a message..." : "Select a chat first...";
         }
 
@@ -865,6 +1196,10 @@
 
             const el = document.createElement("div");
             el.className = "message " + (isMine ? "sent" : "received");
+            el.dataset.id = msg._id;
+            el.dataset.mine = isMine ? "1" : "";
+            el.dataset.createdAt = msg.createdAt || new Date().toISOString();
+            messageCache.set(String(msg._id), msg);
 
             if (!isMine) {
                 const name = document.createElement("strong");
@@ -872,17 +1207,100 @@
                 el.appendChild(name);
             }
 
-            const text = document.createElement("div");
-            text.textContent = msg.text;
+            const body = document.createElement("div");
+            body.className = "body";
+            el.appendChild(body);
+            fillMessage(el, msg);
 
-            const time = document.createElement("small");
-            time.textContent = new Date(msg.createdAt || Date.now())
-                .toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-
-            el.append(text, time);
             document.getElementById("emptyNote")?.remove();
             $("messages").appendChild(el);
             scrollToBottom();
+        }
+
+        // (Re)build the inside of a message: attachment, text, time, edit/delete buttons
+        function fillMessage(el, msg) {
+            const body = el.querySelector(".body");
+            body.innerHTML = "";
+            el.querySelector(".msg-actions")?.remove();
+            el.querySelector("small.meta")?.remove();
+            el.classList.toggle("deleted", Boolean(msg.deleted));
+            el.dataset.text = msg.text || "";
+
+            if (msg.deleted) {
+                body.textContent = "🚫 This message was deleted";
+            } else {
+                if (msg.attachment) body.appendChild(renderAttachment(msg.attachment));
+                if (msg.text) {
+                    const text = document.createElement("div");
+                    text.textContent = msg.text;
+                    body.appendChild(text);
+                }
+            }
+
+            const meta = document.createElement("small");
+            meta.className = "meta";
+            if (msg.editedAt && !msg.deleted) {
+                const edited = document.createElement("span");
+                edited.className = "edited";
+                edited.textContent = "edited";
+                edited.title = "Edited " + new Date(msg.editedAt).toLocaleString();
+                meta.appendChild(edited);
+            }
+            meta.append(new Date(el.dataset.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }));
+            el.appendChild(meta);
+
+            // Only the author can edit/delete
+            if (el.dataset.mine && !msg.deleted) {
+                const actions = document.createElement("div");
+                actions.className = "msg-actions";
+                const editBtn = document.createElement("button");
+                editBtn.type = "button";
+                editBtn.title = "Edit";
+                editBtn.textContent = "✏️";
+                editBtn.addEventListener("click", () => startEdit(el.dataset.id));
+                const delBtn = document.createElement("button");
+                delBtn.type = "button";
+                delBtn.title = "Delete";
+                delBtn.textContent = "🗑️";
+                delBtn.addEventListener("click", () => deleteMessage(el.dataset.id));
+                actions.append(editBtn, delBtn);
+                el.appendChild(actions);
+            }
+        }
+
+        function renderAttachment(att) {
+            const url = fileUrl(att.url);
+            if (att.isImage) {
+                const link = document.createElement("a");
+                link.href = url;
+                link.target = "_blank";
+                link.rel = "noopener";
+                const img = document.createElement("img");
+                img.className = "attachment-img";
+                img.src = url;
+                img.alt = att.name;
+                img.loading = "lazy";
+                img.addEventListener("load", scrollToBottom, { once: true });
+                link.appendChild(img);
+                return link;
+            }
+            const link = document.createElement("a");
+            link.className = "attachment-file";
+            link.href = url;
+            link.download = att.name;
+            link.target = "_blank";
+            link.rel = "noopener";
+            const icon = document.createElement("span");
+            icon.className = "icon";
+            icon.textContent = "📄";
+            const info = document.createElement("div");
+            const name = document.createElement("div");
+            name.textContent = att.name;
+            const size = document.createElement("small");
+            size.textContent = formatSize(att.size) + " · Download";
+            info.append(name, size);
+            link.append(icon, info);
+            return link;
         }
 
         function joinRoom(roomId) {
@@ -912,6 +1330,9 @@
             if (isNew) {
                 typingUsers.clear();
                 renderTyping();
+                cancelEdit();
+                clearAttachment();
+                messageCache.clear();
                 $("messages").innerHTML = "";
                 try {
                     const history = await api(`/api/rooms/${roomId}/messages`);
@@ -929,17 +1350,159 @@
             $("messageInput").focus();
         }
 
-        $("chatForm").addEventListener("submit", (e) => {
+        $("chatForm").addEventListener("submit", async (e) => {
             e.preventDefault();
             const input = $("messageInput");
             const text = input.value.trim();
-            if (!text || !socket?.connected || !currentRoomId) return;
+            if (!socket?.connected || !currentRoomId || uploading) return;
+
+            // Editing an existing message
+            if (editingId) {
+                if (text) socket.emit("edit-message", { messageId: editingId, text });
+                cancelEdit();
+                return;
+            }
+
+            if (!text && !pendingFile) return;
+
+            let attachment = null;
+            if (pendingFile) {
+                const btn = $("sendButton");
+                uploading = true;
+                btn.disabled = true;
+                $("attachButton").disabled = true;
+                btn.textContent = "Uploading...";
+                try {
+                    attachment = await uploadFile(pendingFile);
+                } catch (err) {
+                    showInfo("Upload failed: " + err.message, true);
+                    return;
+                } finally {
+                    uploading = false;
+                    btn.textContent = "Send";
+                    btn.disabled = $("messageInput").disabled;
+                    $("attachButton").disabled = $("messageInput").disabled;
+                }
+            }
 
             // The server sends "new-message" back to everyone in the room, including us
-            socket.emit("send-message", { roomId: currentRoomId, text });
+            socket.emit("send-message", { roomId: currentRoomId, text, attachment });
             stopTyping();
+            clearAttachment();
             input.value = "";
             input.focus();
+        });
+
+        // ---------- Uploads ----------
+        async function uploadFile(file) {
+            const form = new FormData();
+            form.append("file", file);
+            // No Content-Type header: the browser sets the multipart boundary
+            const res = await fetch(API_URL + "/api/upload", {
+                method: "POST",
+                headers: { Authorization: "Bearer " + token },
+                body: form,
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) throw new Error(data.error || data.message || res.statusText);
+            return data;
+        }
+
+        function formatSize(bytes) {
+            if (bytes < 1024) return bytes + " B";
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+            return (bytes / 1024 / 1024).toFixed(1) + " MB";
+        }
+
+        function pickFile(file) {
+            if (!file || !currentRoomId || uploading) return;
+            if (file.size > MAX_FILE_SIZE) {
+                showInfo(`"${file.name}" is too large (max 10 MB)`, true);
+                return;
+            }
+            cancelEdit();
+            pendingFile = file;
+            const isImage = /^image\/(png|jpeg|gif|webp)$/.test(file.type);
+            const thumb = $("attachThumb");
+            if (thumb.src) URL.revokeObjectURL(thumb.src);
+            thumb.classList.toggle("hidden", !isImage);
+            $("attachIcon").classList.toggle("hidden", isImage);
+            if (isImage) thumb.src = URL.createObjectURL(file);
+            $("attachName").textContent = file.name;
+            $("attachSize").textContent = formatSize(file.size);
+            $("attachBar").classList.remove("hidden");
+            $("messageInput").placeholder = "Add a caption (optional)...";
+            $("messageInput").focus();
+        }
+
+        function clearAttachment() {
+            pendingFile = null;
+            $("fileInput").value = "";
+            $("attachBar").classList.add("hidden");
+            const thumb = $("attachThumb");
+            if (thumb.src) { URL.revokeObjectURL(thumb.src); thumb.removeAttribute("src"); }
+            if (!$("messageInput").disabled) $("messageInput").placeholder = "Type a message...";
+        }
+
+        $("attachButton").addEventListener("click", () => $("fileInput").click());
+        $("fileInput").addEventListener("change", (e) => pickFile(e.target.files[0]));
+        $("cancelAttach").addEventListener("click", clearAttachment);
+
+        // Paste an image straight into the message box
+        $("messageInput").addEventListener("paste", (e) => {
+            const file = [...(e.clipboardData?.files || [])][0];
+            if (file) { e.preventDefault(); pickFile(file); }
+        });
+
+        // Drag & drop a file onto the messages area
+        const dropZone = $("messages");
+        dropZone.addEventListener("dragover", (e) => {
+            if (!currentRoomId) return;
+            e.preventDefault();
+            dropZone.classList.add("drag-over");
+        });
+        dropZone.addEventListener("dragleave", () => dropZone.classList.remove("drag-over"));
+        dropZone.addEventListener("drop", (e) => {
+            e.preventDefault();
+            dropZone.classList.remove("drag-over");
+            pickFile(e.dataTransfer.files[0]);
+        });
+
+        // ---------- Edit / delete ----------
+        function startEdit(messageId) {
+            const el = document.querySelector(`.message[data-id="${messageId}"]`);
+            if (!el) return;
+            clearAttachment();
+            editingId = messageId;
+            const text = el.dataset.text || "";
+            $("editPreview").textContent = text || "(file)";
+            $("editBar").classList.remove("hidden");
+            const input = $("messageInput");
+            input.value = text;
+            input.focus();
+            input.select();
+        }
+
+        function cancelEdit() {
+            if (!editingId) return;
+            editingId = null;
+            $("editBar").classList.add("hidden");
+            $("messageInput").value = "";
+        }
+
+        function deleteMessage(messageId) {
+            if (!confirm("Delete this message for everyone?")) return;
+            socket.emit("delete-message", { messageId });
+        }
+
+        $("cancelEdit").addEventListener("click", cancelEdit);
+        $("messageInput").addEventListener("keydown", (e) => {
+            if (e.key === "Escape") { cancelEdit(); clearAttachment(); }
+            // Arrow-up on an empty box edits your last message (like Slack/Discord)
+            if (e.key === "ArrowUp" && !e.target.value && !editingId) {
+                const mine = [...document.querySelectorAll(".message.sent:not(.deleted)")].pop();
+                if (mine) { e.preventDefault(); startEdit(mine.dataset.id); }
+            }
         });
 
         // ---------- Typing indicator ----------
@@ -968,6 +1531,142 @@
                 names.length === 1 ? `${names[0]} is typing...` :
                 `${names.join(", ")} are typing...`;
         }
+
+        // ---------- Settings dashboard ----------
+        function openSettings() {
+            fillSettings();
+            $("settingsPage").classList.remove("hidden");
+            ["profileError", "profileSuccess", "passwordError", "passwordSuccess", "avatarError"].forEach((id) => ($(id).textContent = ""));
+            api("/api/users/me").then((me) => {
+                Object.assign(currentUser, me);
+                localStorage.setItem("user", JSON.stringify(currentUser));
+                fillSettings();
+            }).catch(() => {});
+        }
+
+        function closeSettings() {
+            $("settingsPage").classList.add("hidden");
+        }
+
+        function fillSettings() {
+            const me = currentUser;
+            paintAvatar($("setAvatar"), me);
+            $("setName").textContent = userName(me);
+            $("setUsername").textContent = "@" + me.username;
+            $("setAbout").textContent = me.about || "No about yet";
+            $("removeAvatar").disabled = !me.avatar;
+
+            $("pfDisplayName").value = me.displayName || "";
+            $("pfUsername").value = me.username || "";
+            $("pfEmail").value = me.email || "";
+            $("pfAbout").value = me.about || "";
+            $("aboutCount").textContent = $("pfAbout").value.length;
+
+            $("statOnline").textContent = users.filter((u) => u.online).length;
+            $("statUsers").textContent = users.length + 1;
+            $("statRooms").textContent = rooms.length;
+
+            const fmt = (d) => (d ? new Date(d).toLocaleString() : "—");
+            $("infoEmail").textContent = me.email || "—";
+            $("infoSince").textContent = fmt(me.createdAt);
+            $("infoUpdated").textContent = fmt(me.updatedAt);
+            $("infoStatus").textContent = socket?.connected ? "🟢 Online" : "🔴 Disconnected";
+        }
+
+        async function saveProfile(changes) {
+            const me = await api("/api/users/me", { method: "PATCH", body: JSON.stringify(changes) });
+            Object.assign(currentUser, me);
+            localStorage.setItem("user", JSON.stringify(currentUser));
+            renderMe();
+            fillSettings();
+        }
+
+        $("settingsButton").addEventListener("click", openSettings);
+        $("myAvatar").addEventListener("click", openSettings);
+        document.querySelector(".sidebar-header .me").addEventListener("click", openSettings);
+        $("closeSettings").addEventListener("click", closeSettings);
+        $("settingsLogout").addEventListener("click", () => logout());
+        $("pfAbout").addEventListener("input", (e) => ($("aboutCount").textContent = e.target.value.length));
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape" && !$("settingsPage").classList.contains("hidden")) closeSettings();
+        });
+
+        $("profileForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            $("profileError").textContent = "";
+            $("profileSuccess").textContent = "";
+            const btn = e.target.querySelector("button[type=submit]");
+            btn.disabled = true;
+            try {
+                await saveProfile({
+                    displayName: $("pfDisplayName").value,
+                    username: $("pfUsername").value,
+                    email: $("pfEmail").value,
+                    about: $("pfAbout").value,
+                });
+                $("profileSuccess").textContent = "✓ Profile saved";
+            } catch (err) {
+                $("profileError").textContent = err.message;
+            } finally {
+                btn.disabled = false;
+            }
+        });
+
+        $("passwordForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            $("passwordError").textContent = "";
+            $("passwordSuccess").textContent = "";
+            if ($("pwNew").value !== $("pwConfirm").value) {
+                $("passwordError").textContent = "New passwords do not match";
+                return;
+            }
+            const btn = e.target.querySelector("button[type=submit]");
+            btn.disabled = true;
+            try {
+                await api("/api/users/me/password", {
+                    method: "PATCH",
+                    body: JSON.stringify({ currentPassword: $("pwCurrent").value, newPassword: $("pwNew").value }),
+                });
+                e.target.reset();
+                $("passwordSuccess").textContent = "✓ Password updated";
+            } catch (err) {
+                $("passwordError").textContent = err.message;
+            } finally {
+                btn.disabled = false;
+            }
+        });
+
+        $("changeAvatar").addEventListener("click", () => $("avatarInput").click());
+        $("avatarInput").addEventListener("change", async (e) => {
+            const file = e.target.files[0];
+            e.target.value = "";
+            if (!file) return;
+            $("avatarError").textContent = "";
+            if (file.size > MAX_FILE_SIZE) {
+                $("avatarError").textContent = "Image is too large (max 10 MB)";
+                return;
+            }
+            $("changeAvatar").disabled = true;
+            $("changeAvatar").textContent = "Uploading...";
+            try {
+                const uploaded = await uploadFile(file);
+                await saveProfile({ avatar: uploaded.url });
+            } catch (err) {
+                $("avatarError").textContent = err.message;
+            } finally {
+                $("changeAvatar").disabled = false;
+                $("changeAvatar").textContent = "📷 Change photo";
+            }
+        });
+
+        $("removeAvatar").addEventListener("click", async () => {
+            $("avatarError").textContent = "";
+            try {
+                await saveProfile({ avatar: "" });
+            } catch (err) {
+                $("avatarError").textContent = err.message;
+            }
+        });
 
         // ---------- Socket.IO ----------
         function connectSocket() {
@@ -1042,6 +1741,42 @@
                 renderUsers();
                 renderChatHeader();
                 displayMessage(msg);
+            });
+
+            // ----- Edit / delete (live) -----
+            socket.on("message-updated", (update) => {
+                if (editingId === String(update._id)) cancelEdit();
+                const el = document.querySelector(`.message[data-id="${update._id}"]`);
+                const msg = messageCache.get(String(update._id));
+                if (!el || !msg) return;
+                // Only text + edited time change; the attachment stays
+                msg.text = update.text;
+                msg.editedAt = update.editedAt;
+                fillMessage(el, msg);
+            });
+
+            socket.on("message-deleted", ({ _id }) => {
+                if (editingId === String(_id)) cancelEdit();
+                const el = document.querySelector(`.message[data-id="${_id}"]`);
+                const msg = messageCache.get(String(_id));
+                if (!el || !msg) return;
+                Object.assign(msg, { deleted: true, text: "", attachment: null });
+                fillMessage(el, msg);
+            });
+
+            // A user changed their profile (name, photo, about)
+            socket.on("user-updated", (profile) => {
+                if (String(profile._id) === String(currentUser?._id)) {
+                    Object.assign(currentUser, profile);
+                    localStorage.setItem("user", JSON.stringify(currentUser));
+                    renderMe();
+                    return;
+                }
+                const user = findUser(profile._id);
+                if (user) Object.assign(user, profile);
+                else users.push({ ...profile, online: true });
+                renderUsers();
+                renderChatHeader();
             });
 
             // ----- Typing -----
